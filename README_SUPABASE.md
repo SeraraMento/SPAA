@@ -52,3 +52,7 @@ La V1 ajoute une table `faq_items` dans `SQL_setup.sql`.
 - Le champ `sort_order` permet de choisir l'ordre d'affichage.
 
 Après mise à jour du projet, exécuter `SQL_setup.sql` dans Supabase si la table `faq_items` n'existe pas encore.
+
+
+### Mentions légales
+Une page `mentions-legales.html` a été ajoutée. Les informations d\’identification de l\’association sont laissées volontairement entre crochets et doivent être remplacées par les informations officielles avant publication.

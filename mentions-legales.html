@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mentions légales du site de la SPAA.">
+  <title>Mentions légales — SPAA</title>
+  <link rel="stylesheet" href="CSS/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-container">
+      <a class="logo" href="index.html">SPAA</a>
+      <button class="menu-toggle" aria-label="Ouvrir le menu">☰</button>
+      <nav class="main-nav">
+        <a href="index.html">Accueil</a>
+        <a href="index.html#presentation">Présentation</a>
+        <a href="animaux.html">Animaux</a>
+        <a href="actualites.html">Actualités</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="faq.html">FAQ</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn btn-primary" href="index.html#adopter">Adopter</a>
+        <a class="btn btn-outline" href="connexion.html">Espace équipe</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container legal-page" style="padding: 80px 20px; max-width: 1000px;">
+    <p class="eyebrow">INFORMATIONS LÉGALES</p>
+    <h1>Mentions légales</h1>
+    <p class="lead">Les informations ci-dessous sont à compléter et à valider par l'association avant la mise en ligne définitive.</p>
+
+    <section style="margin-top:40px">
+      <h2>1. Éditeur du site</h2>
+      <p><strong>Dénomination :</strong> [Nom officiel de l'association]</p>
+      <p><strong>Forme juridique :</strong> Association loi 1901</p>
+      <p><strong>Siège social :</strong> [Adresse complète]</p>
+      <p><strong>RNA :</strong> [Numéro RNA]</p>
+      <p><strong>SIREN / SIRET :</strong> [Numéro, si applicable]</p>
+      <p><strong>E-mail :</strong> [Adresse e-mail officielle]</p>
+      <p><strong>Téléphone :</strong> [Numéro de téléphone]</p>
+      <p><strong>Directeur / directrice de la publication :</strong> [Nom et fonction]</p>
+    </section>
+
+    <section style="margin-top:36px">
+      <h2>2. Hébergement</h2>
+      <p>Le site est hébergé par <strong>Vercel Inc.</strong></p>
+      <p>440 N Barranca Ave #4133, Covina, CA 91723, États-Unis</p>
+      <p>Site : <a href="https://vercel.com/" target="_blank" rel="noopener noreferrer">vercel.com</a></p>
+      <p>Les services de données et d'authentification utilisés par certaines fonctionnalités du site sont fournis par <strong>Supabase</strong>.</p>
+    </section>
+
+    <section style="margin-top:36px">
+      <h2>3. Propriété intellectuelle</h2>
+      <p>L'ensemble des éléments présents sur ce site (textes, photographies, illustrations, logo, graphismes, structure et code) est protégé par les dispositions applicables en matière de propriété intellectuelle, sauf mention contraire.</p>
+      <p>Toute reproduction, représentation, adaptation ou réutilisation, totale ou partielle, sans autorisation préalable du titulaire des droits, peut être interdite.</p>
+      <p>Les photographies des animaux et les contenus fournis par l'association restent soumis aux droits de leurs auteurs et titulaires respectifs.</p>
+    </section>
+
+    <section style="margin-top:36px">
+      <h2>4. Responsabilité</h2>
+      <p>L'association s'efforce de maintenir les informations diffusées sur le site à jour et exactes. Toutefois, elle ne peut garantir l'absence d'erreurs, d'omissions ou d'indisponibilité temporaire.</p>
+      <p>Les informations relatives aux animaux et aux événements peuvent évoluer. Pour obtenir une information à jour avant tout déplacement ou démarche d'adoption, il est recommandé de contacter directement l'association.</p>
+    </section>
+
+    <section style="margin-top:36px">
+      <h2>5. Données personnelles</h2>
+      <p>Le site peut traiter certaines données personnelles, notamment lorsque vous utilisez le formulaire de contact ou les fonctionnalités réservées à l'équipe.</p>
+      <p>Les modalités de collecte, les finalités, les durées de conservation, les destinataires et l'exercice de vos droits doivent être détaillés dans une <strong>Politique de confidentialité</strong> dédiée.</p>
+      <p>Cette page « Mentions légales » ne remplace donc pas l'information RGPD à fournir au moment de la collecte des données.</p>
+    </section>
+
+    <section style="margin-top:36px">
+      <h2>6. Cookies et traceurs</h2>
+      <p>Le site peut utiliser des cookies ou technologies similaires strictement nécessaires à son fonctionnement. Tout traceur non nécessaire devra faire l'objet des informations et, lorsque la réglementation l'impose, du consentement approprié.</p>
+      <p>Les modalités détaillées devront être précisées dans la politique de confidentialité et, le cas échéant, dans un dispositif de gestion des cookies.</p>
+    </section>
+
+    <section style="margin-top:36px">
+      <h2>7. Contact</h2>
+      <p>Pour toute question concernant le site ou son contenu :</p>
+      <p><strong>E-mail :</strong> [Adresse e-mail officielle]</p>
+      <p><strong>Adresse postale :</strong> [Adresse complète de l'association]</p>
+    </section>
+
+    <p style="margin-top:50px;font-size:.95rem;color:#666">Dernière mise à jour : 2 septembre 2026</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div><strong>SPAA</strong><br><span>Refuge et protection animale</span></div>
+      <div class="footer-links">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="faq.html">FAQ</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const toggle=document.querySelector('.menu-toggle');
+    const nav=document.querySelector('.main-nav');
+    if(toggle && nav){ toggle.addEventListener('click',()=>nav.classList.toggle('open')); }
+  </script>
+</body>
+</html>

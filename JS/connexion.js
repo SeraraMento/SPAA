@@ -16,35 +16,46 @@
   let mustChangePassword = false;
 
   function setNotice(message = '', error = false) {
-    notice.textContent = message;
-    notice.classList.toggle('hidden', !message);
-    notice.classList.toggle('error', !!error);
+    // Certaines versions personnalisées de la page peuvent ne plus contenir
+    // #authNotice : on le recrée au besoin au lieu de faire planter le script.
+    let box = document.getElementById('authNotice');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'authNotice';
+      box.className = 'auth-notice hidden';
+      const card = form?.closest('.auth-card') || document.querySelector('.auth-card') || document.body;
+      const anchor = form || card.firstElementChild;
+      if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(box, anchor);
+      else card.prepend(box);
+    }
+    box.textContent = message;
+    box.classList.toggle('hidden', !message);
+    box.classList.toggle('error', !!error);
   }
 
   function renderMode(clearNotice = true) {
     const signup = mode === 'signup';
     const change = mode === 'change-password';
-    title.textContent = change ? 'Choisissez votre nouveau mot de passe' : (signup ? 'Créer un compte' : 'Connexion équipe');
-    subtitle.textContent = change
+    if (title) title.textContent = change ? 'Choisissez votre nouveau mot de passe' : (signup ? 'Créer un compte' : 'Connexion équipe');
+    if (subtitle) subtitle.textContent = change
       ? 'Première connexion : votre mot de passe doit être modifié avant d’accéder à l’espace équipe.'
       : (signup
         ? 'Créez un compte. Il devra être validé par un administrateur avant d’accéder au back-office.'
         : 'Connectez-vous pour accéder au back-office et gérer le site de la SPAA.');
 
-    email.closest('.auth-field')?.classList.toggle('hidden', change);
+    email?.closest('.auth-field')?.classList.toggle('hidden', change);
     passwordConfirmField?.classList.toggle('hidden', !change);
-    password.autocomplete = change ? 'new-password' : (signup ? 'new-password' : 'current-password');
+    if (password) password.autocomplete = change ? 'new-password' : (signup ? 'new-password' : 'current-password');
     if (passwordConfirm) passwordConfirm.autocomplete = 'new-password';
 
-    submit.textContent = change ? 'Modifier mon mot de passe' : (signup ? 'Créer mon compte' : 'Se connecter');
-    toggle.classList.toggle('hidden', change);
-    helper.textContent = change
+    if (submit) submit.textContent = change ? 'Modifier mon mot de passe' : (signup ? 'Créer mon compte' : 'Se connecter');
+    toggle?.classList.toggle('hidden', change);
+    if (helper) helper.textContent = change
       ? 'Le changement se fait directement sur le site. Aucun e-mail de réinitialisation n’est nécessaire.'
       : (signup
         ? 'Utilisez une adresse fictive uniquement si votre configuration de classe le prévoit.'
         : 'Accès réservé aux membres autorisés de l’équipe.');
-    back.textContent = 'Retour au site';
-    back.href = 'index.html';
+    if (back) { back.textContent = 'Retour au site'; back.href = 'index.html'; }
     if (clearNotice) setNotice();
   }
 
@@ -73,10 +84,9 @@
       form.dataset.modeBeforeChange = mode;
       mode = 'change-password';
       renderMode(false);
-      password.value = '';
+      if (password) { password.value = ''; password.focus(); }
       if (passwordConfirm) passwordConfirm.value = '';
       setNotice('Première connexion : définissez maintenant votre nouveau mot de passe.');
-      password.focus();
       return;
     }
 
@@ -95,6 +105,11 @@
     });
   }
 
+  if (!form || !submit || !email || !password) {
+    setNotice('La page de connexion est incomplète : vérifiez les identifiants HTML authForm, authEmail, authPassword et authSubmit.', true);
+    return;
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     setNotice();
@@ -107,7 +122,7 @@
 
       if (mode === 'change-password') {
         if (passwordValue.length < 8) throw new Error('Le nouveau mot de passe doit contenir au moins 8 caractères.');
-        if (passwordValue !== passwordConfirm.value) throw new Error('Les deux mots de passe ne correspondent pas.');
+        if (!passwordConfirm || passwordValue !== passwordConfirm.value) throw new Error('Les deux mots de passe ne correspondent pas.');
 
         submit.textContent = 'Modification…';
         const { error: updateError } = await client.auth.updateUser({ password: passwordValue });

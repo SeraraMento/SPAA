@@ -123,3 +123,37 @@ using (bucket_id = 'animal-photos');
 -- ('Rex', 'Chien', 'Croisé Labrador', '3 ans', 'Mâle', 'available', 'Joueur et sociable, à l’aise avec les enfants et les autres chiens.'),
 -- ('Nala', 'Chat', 'Européenne', '2 ans', 'Femelle', 'available', 'Câline et discrète, elle s’épanouit dans un foyer calme.'),
 -- ('Milo', 'Chien', 'Croisé Beagle', '1 an', 'Mâle', 'reserved', 'Énergique, il adore les longues balades et la compagnie.');
+
+-- ============================================================
+-- SPAA — Actualités
+-- À exécuter après la première installation
+-- ============================================================
+create table if not exists public.news (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  excerpt text,
+  content text not null,
+  image_url text,
+  published boolean not null default true,
+  published_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists news_published_idx on public.news(published);
+create index if not exists news_published_at_idx on public.news(published_at desc);
+drop trigger if exists news_set_updated_at on public.news;
+create trigger news_set_updated_at before update on public.news for each row execute function public.set_updated_at();
+alter table public.news enable row level security;
+drop policy if exists "Public can read published news" on public.news;
+create policy "Public can read published news" on public.news for select to anon, authenticated using (published = true);
+drop policy if exists "Authenticated can manage news" on public.news;
+create policy "Authenticated can manage news" on public.news for all to authenticated using (true) with check (true);
+insert into storage.buckets (id,name,public) values ('news-images','news-images',true) on conflict (id) do update set public=true;
+drop policy if exists "Public can view news images" on storage.objects;
+create policy "Public can view news images" on storage.objects for select to anon, authenticated using (bucket_id='news-images');
+drop policy if exists "Authenticated can upload news images" on storage.objects;
+create policy "Authenticated can upload news images" on storage.objects for insert to authenticated with check (bucket_id='news-images');
+drop policy if exists "Authenticated can update news images" on storage.objects;
+create policy "Authenticated can update news images" on storage.objects for update to authenticated using (bucket_id='news-images') with check (bucket_id='news-images');
+drop policy if exists "Authenticated can delete news images" on storage.objects;
+create policy "Authenticated can delete news images" on storage.objects for delete to authenticated using (bucket_id='news-images');

@@ -1,191 +1,31 @@
-const loginView = document.getElementById('loginView');
-const dashboardView = document.getElementById('dashboardView');
-const loginForm = document.getElementById('loginForm');
-const loginNotice = document.getElementById('loginNotice');
-const dashboardNotice = document.getElementById('dashboardNotice');
-const logoutBtn = document.getElementById('logoutBtn');
-const newAnimalBtn = document.getElementById('newAnimalBtn');
-const animalFormPanel = document.getElementById('animalFormPanel');
-const animalForm = document.getElementById('animalForm');
-const tableBody = document.getElementById('animalsTableBody');
-const emptyAnimals = document.getElementById('emptyAnimals');
-const fileInput = document.getElementById('animalPhoto');
-
-const fields = {
-  id: document.getElementById('animalId'),
-  name: document.getElementById('animalName'),
-  species: document.getElementById('animalSpecies'),
-  breed: document.getElementById('animalBreed'),
-  age: document.getElementById('animalAge'),
-  sex: document.getElementById('animalSex'),
-  status: document.getElementById('animalStatus'),
-  description: document.getElementById('animalDescription'),
-};
-
-let currentAnimals = [];
-
-function showNotice(element, message, error = false) {
-  element.textContent = message;
-  element.classList.remove('hidden');
-  element.classList.toggle('error', error);
-}
-
-function hideNotice(element) { element.classList.add('hidden'); }
-
-function statusLabel(status) {
-  return { available: 'Disponible', reserved: 'Réservé', adopted: 'Adopté' }[status] || status;
-}
-
-function statusClass(status) {
-  return status === 'available' ? 'badge-available' : 'badge-reserved';
-}
-
-function resetForm() {
-  animalForm.reset();
-  fields.id.value = '';
-  document.getElementById('formTitle').textContent = 'Ajouter un animal';
-  document.getElementById('fileName').textContent = 'Aucune nouvelle photo sélectionnée.';
-  animalFormPanel.classList.add('hidden');
-}
-
-function openForm(animal = null) {
-  hideNotice(dashboardNotice);
-  animalFormPanel.classList.remove('hidden');
-  document.getElementById('formTitle').textContent = animal ? `Modifier ${animal.name}` : 'Ajouter un animal';
-  fields.id.value = animal?.id || '';
-  fields.name.value = animal?.name || '';
-  fields.species.value = animal?.species || 'Chien';
-  fields.breed.value = animal?.breed || '';
-  fields.age.value = animal?.age || '';
-  fields.sex.value = animal?.sex || 'Mâle';
-  fields.status.value = animal?.status || 'available';
-  fields.description.value = animal?.description || '';
-  fileInput.value = '';
-  document.getElementById('fileName').textContent = animal?.photo_url ? 'Photo actuelle conservée si aucune nouvelle photo n’est choisie.' : 'Aucune photo actuelle.';
-  animalFormPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-async function loadAnimals() {
-  const { data, error } = await supabaseClient.from('animals').select('*').order('created_at', { ascending: false });
-  if (error) {
-    showNotice(dashboardNotice, `Impossible de charger les animaux : ${error.message}`, true);
-    return;
-  }
-  currentAnimals = data || [];
-  renderAnimals();
-}
-
-function renderAnimals() {
-  tableBody.innerHTML = '';
-  emptyAnimals.classList.toggle('hidden', currentAnimals.length !== 0);
-  currentAnimals.forEach((animal) => {
-    const tr = document.createElement('tr');
-    const image = animal.photo_url ? `<img class="admin-thumb" src="${escapeHtml(animal.photo_url)}" alt="Photo de ${escapeHtml(animal.name)}">` : '<div class="admin-thumb"></div>';
-    tr.innerHTML = `
-      <td>${image}</td>
-      <td><strong>${escapeHtml(animal.name)}</strong><br><small>${escapeHtml(animal.species || '')}</small></td>
-      <td>${escapeHtml(animal.breed || '—')} · ${escapeHtml(animal.age || 'âge non renseigné')} · ${escapeHtml(animal.sex || '—')}</td>
-      <td><span class="badge ${statusClass(animal.status)}">${statusLabel(animal.status)}</span></td>
-      <td><div class="admin-actions"><button data-action="edit" data-id="${animal.id}">Modifier</button><button class="danger" data-action="delete" data-id="${animal.id}">Supprimer</button></div></td>`;
-    tableBody.appendChild(tr);
-  });
-}
-
-async function uploadPhoto(file, animalId) {
-  if (!file) return null;
-  const safeName = file.name.toLowerCase().replace(/[^a-z0-9.\-_]/g, '-');
-  const path = `${animalId}/${Date.now()}-${safeName}`;
-  const { error } = await supabaseClient.storage.from('animal-photos').upload(path, file, { upsert: false, contentType: file.type });
-  if (error) throw error;
-  const { data } = supabaseClient.storage.from('animal-photos').getPublicUrl(path);
-  return data.publicUrl;
-}
-
-async function saveAnimal(event) {
-  event.preventDefault();
-  hideNotice(dashboardNotice);
-  const id = fields.id.value || crypto.randomUUID();
-  let photoUrl = currentAnimals.find((a) => a.id === id)?.photo_url || null;
-
-  try {
-    const file = fileInput.files[0];
-    if (file) photoUrl = await uploadPhoto(file, id);
-
-    const payload = {
-      id,
-      name: fields.name.value.trim(),
-      species: fields.species.value,
-      breed: fields.breed.value.trim() || null,
-      age: fields.age.value.trim() || null,
-      sex: fields.sex.value,
-      status: fields.status.value,
-      description: fields.description.value.trim() || null,
-      photo_url: photoUrl,
-    };
-
-    const { error } = await supabaseClient.from('animals').upsert(payload);
-    if (error) throw error;
-
-    resetForm();
-    showNotice(dashboardNotice, 'Animal enregistré avec succès.');
-    await loadAnimals();
-  } catch (error) {
-    showNotice(dashboardNotice, `Erreur lors de l’enregistrement : ${error.message}`, true);
-  }
-}
-
-async function deleteAnimal(id) {
-  const animal = currentAnimals.find((a) => a.id === id);
-  if (!animal || !confirm(`Supprimer ${animal.name} ?`)) return;
-  const { error } = await supabaseClient.from('animals').delete().eq('id', id);
-  if (error) {
-    showNotice(dashboardNotice, `Impossible de supprimer l’animal : ${error.message}`, true);
-    return;
-  }
-  showNotice(dashboardNotice, `${animal.name} a été supprimé.`);
-  await loadAnimals();
-}
-
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char]));
-}
-
-async function updateView(session) {
-  if (session) {
-    loginView.classList.add('hidden');
-    dashboardView.classList.remove('hidden');
-    logoutBtn.classList.remove('hidden');
-    await loadAnimals();
-  } else {
-    loginView.classList.remove('hidden');
-    dashboardView.classList.add('hidden');
-    logoutBtn.classList.add('hidden');
-  }
-}
-
-loginForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  hideNotice(loginNotice);
-  const { error } = await supabaseClient.auth.signInWithPassword({ email: document.getElementById('email').value.trim(), password: document.getElementById('password').value });
-  if (error) showNotice(loginNotice, error.message, true);
-});
-
-logoutBtn.addEventListener('click', async () => { await supabaseClient.auth.signOut(); });
-newAnimalBtn.addEventListener('click', () => openForm());
-document.getElementById('cancelFormBtn').addEventListener('click', resetForm);
-animalForm.addEventListener('submit', saveAnimal);
-fileInput.addEventListener('change', () => { document.getElementById('fileName').textContent = fileInput.files[0]?.name || 'Aucune nouvelle photo sélectionnée.'; });
-tableBody.addEventListener('click', (event) => {
-  const button = event.target.closest('button[data-action]');
-  if (!button) return;
-  const animal = currentAnimals.find((a) => a.id === button.dataset.id);
-  if (button.dataset.action === 'edit') openForm(animal);
-  if (button.dataset.action === 'delete') deleteAnimal(button.dataset.id);
-});
-
-supabaseClient.auth.onAuthStateChange((_event, session) => updateView(session));
-
-(async () => {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  await updateView(session);
-})();
+const loginView=document.getElementById('loginView'),dashboardView=document.getElementById('dashboardView'),loginForm=document.getElementById('loginForm'),loginNotice=document.getElementById('loginNotice'),dashboardNotice=document.getElementById('dashboardNotice'),logoutBtn=document.getElementById('logoutBtn');
+const newAnimalBtn=document.getElementById('newAnimalBtn'),animalFormPanel=document.getElementById('animalFormPanel'),animalForm=document.getElementById('animalForm'),tableBody=document.getElementById('animalsTableBody'),emptyAnimals=document.getElementById('emptyAnimals'),fileInput=document.getElementById('animalPhoto');
+const tabAnimals=document.getElementById('tabAnimals'),tabNews=document.getElementById('tabNews'),animalsSection=document.getElementById('animalsSection'),newsSection=document.getElementById('newsSection');
+const newNewsBtn=document.getElementById('newNewsBtn'),newsFormPanel=document.getElementById('newsFormPanel'),newsForm=document.getElementById('newsForm'),newsTableBody=document.getElementById('newsTableBody'),emptyNews=document.getElementById('emptyNews'),newsImageInput=document.getElementById('newsImage');
+const fields={id:document.getElementById('animalId'),name:document.getElementById('animalName'),species:document.getElementById('animalSpecies'),breed:document.getElementById('animalBreed'),age:document.getElementById('animalAge'),sex:document.getElementById('animalSex'),status:document.getElementById('animalStatus'),description:document.getElementById('animalDescription')};
+const newsFields={id:document.getElementById('newsId'),title:document.getElementById('newsTitle'),excerpt:document.getElementById('newsExcerpt'),content:document.getElementById('newsContent'),published:document.getElementById('newsPublished'),date:document.getElementById('newsDate')};
+let currentAnimals=[],currentNews=[];
+function showNotice(el,msg,error=false){el.textContent=msg;el.classList.remove('hidden');el.classList.toggle('error',error);}function hideNotice(el){el.classList.add('hidden');}
+function statusLabel(s){return{available:'Disponible',reserved:'Réservé',adopted:'Adopté'}[s]||s}function statusClass(s){return s==='available'?'badge-available':s==='adopted'?'badge-adopted':'badge-reserved'}
+function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function resetForm(){animalForm.reset();fields.id.value='';document.getElementById('formTitle').textContent='Ajouter un animal';document.getElementById('fileName').textContent='Aucune nouvelle photo sélectionnée.';animalFormPanel.classList.add('hidden');}
+function openForm(a=null){hideNotice(dashboardNotice);animalFormPanel.classList.remove('hidden');document.getElementById('formTitle').textContent=a?`Modifier ${a.name}`:'Ajouter un animal';fields.id.value=a?.id||'';fields.name.value=a?.name||'';fields.species.value=a?.species||'Chien';fields.breed.value=a?.breed||'';fields.age.value=a?.age||'';fields.sex.value=a?.sex||'Mâle';fields.status.value=a?.status||'available';fields.description.value=a?.description||'';fileInput.value='';document.getElementById('fileName').textContent=a?.photo_url?'Photo actuelle conservée si aucune nouvelle photo n’est choisie.':'Aucune photo actuelle.';animalFormPanel.scrollIntoView({behavior:'smooth',block:'start'});}
+async function loadAnimals(){const {data,error}=await supabaseClient.from('animals').select('*').order('created_at',{ascending:false});if(error){showNotice(dashboardNotice,`Impossible de charger les animaux : ${error.message}`,true);return;}currentAnimals=data||[];renderAnimals();}
+function renderAnimals(){tableBody.innerHTML='';emptyAnimals.classList.toggle('hidden',currentAnimals.length!==0);currentAnimals.forEach(a=>{const tr=document.createElement('tr');const image=a.photo_url?`<img class="admin-thumb" src="${esc(a.photo_url)}" alt="Photo de ${esc(a.name)}">`:'<div class="admin-thumb"></div>';tr.innerHTML=`<td>${image}</td><td><strong>${esc(a.name)}</strong><br><small>${esc(a.species||'')}</small></td><td>${esc(a.breed||'—')} · ${esc(a.age||'âge non renseigné')} · ${esc(a.sex||'—')}</td><td><span class="badge ${statusClass(a.status)}">${statusLabel(a.status)}</span></td><td><div class="admin-actions"><button data-action="edit" data-id="${a.id}">Modifier</button><button class="danger" data-action="delete" data-id="${a.id}">Supprimer</button></div></td>`;tableBody.appendChild(tr);});}
+async function uploadFile(file,bucket,folder,id){if(!file)return null;const safe=file.name.toLowerCase().replace(/[^a-z0-9.\-_]/g,'-');const path=`${folder}/${id}/${Date.now()}-${safe}`;const {error}=await supabaseClient.storage.from(bucket).upload(path,file,{upsert:false,contentType:file.type});if(error)throw error;return supabaseClient.storage.from(bucket).getPublicUrl(path).data.publicUrl;}
+async function saveAnimal(e){e.preventDefault();hideNotice(dashboardNotice);const id=fields.id.value||crypto.randomUUID();let photoUrl=currentAnimals.find(a=>a.id===id)?.photo_url||null;try{if(fileInput.files[0])photoUrl=await uploadFile(fileInput.files[0],'animal-photos','animals',id);const payload={id,name:fields.name.value.trim(),species:fields.species.value,breed:fields.breed.value.trim()||null,age:fields.age.value.trim()||null,sex:fields.sex.value,status:fields.status.value,description:fields.description.value.trim()||null,photo_url:photoUrl};const {error}=await supabaseClient.from('animals').upsert(payload);if(error)throw error;resetForm();showNotice(dashboardNotice,'Animal enregistré avec succès.');await loadAnimals();}catch(err){showNotice(dashboardNotice,`Erreur lors de l’enregistrement : ${err.message}`,true)}}
+async function deleteAnimal(id){const a=currentAnimals.find(x=>x.id===id);if(!a||!confirm(`Supprimer ${a.name} ?`))return;const {error}=await supabaseClient.from('animals').delete().eq('id',id);if(error){showNotice(dashboardNotice,`Impossible de supprimer l’animal : ${error.message}`,true);return;}showNotice(dashboardNotice,`${a.name} a été supprimé.`);await loadAnimals();}
+function formatDate(v){return new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium',timeStyle:'short'}).format(new Date(v));}
+function toLocalInput(v){if(!v)return'';const d=new Date(v);const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+function resetNewsForm(){newsForm.reset();newsFields.id.value='';newsFields.published.value='true';document.getElementById('newsFormTitle').textContent='Ajouter une actualité';document.getElementById('newsFileName').textContent='Aucune nouvelle image sélectionnée.';newsFormPanel.classList.add('hidden');}
+function openNewsForm(n=null){hideNotice(dashboardNotice);newsFormPanel.classList.remove('hidden');document.getElementById('newsFormTitle').textContent=n?`Modifier ${n.title}`:'Ajouter une actualité';newsFields.id.value=n?.id||'';newsFields.title.value=n?.title||'';newsFields.excerpt.value=n?.excerpt||'';newsFields.content.value=n?.content||'';newsFields.published.value=String(n?.published??true);newsFields.date.value=toLocalInput(n?.published_at||new Date().toISOString());newsImageInput.value='';document.getElementById('newsFileName').textContent=n?.image_url?'Image actuelle conservée si aucune nouvelle image n’est choisie.':'Aucune image actuelle.';newsFormPanel.scrollIntoView({behavior:'smooth',block:'start'});}
+async function loadNews(){const {data,error}=await supabaseClient.from('news').select('*').order('published_at',{ascending:false}).order('created_at',{ascending:false});if(error){showNotice(dashboardNotice,`Impossible de charger les actualités : ${error.message}`,true);return;}currentNews=data||[];renderNews();}
+function renderNews(){newsTableBody.innerHTML='';emptyNews.classList.toggle('hidden',currentNews.length!==0);currentNews.forEach(n=>{const tr=document.createElement('tr');const img=n.image_url?`<img class="news-admin-thumb" src="${esc(n.image_url)}" alt="${esc(n.title)}">`:'<div class="news-admin-thumb"></div>';tr.innerHTML=`<td>${img}</td><td><strong>${esc(n.title)}</strong><br><small>${esc(n.excerpt||'')}</small></td><td>${formatDate(n.published_at||n.created_at)}</td><td><span class="badge ${n.published?'badge-available':'badge-reserved'}">${n.published?'Publié':'Brouillon'}</span></td><td><div class="admin-actions"><button data-news-action="edit" data-id="${n.id}">Modifier</button><button class="danger" data-news-action="delete" data-id="${n.id}">Supprimer</button></div></td>`;newsTableBody.appendChild(tr);});}
+async function saveNews(e){e.preventDefault();hideNotice(dashboardNotice);const id=newsFields.id.value||crypto.randomUUID();let imageUrl=currentNews.find(n=>n.id===id)?.image_url||null;try{if(newsImageInput.files[0])imageUrl=await uploadFile(newsImageInput.files[0],'news-images','news',id);const published=newsFields.published.value==='true';let publishedAt=newsFields.date.value?new Date(newsFields.date.value).toISOString():new Date().toISOString();const payload={id,title:newsFields.title.value.trim(),excerpt:newsFields.excerpt.value.trim()||null,content:newsFields.content.value.trim(),image_url:imageUrl,published,published_at:publishedAt};const {error}=await supabaseClient.from('news').upsert(payload);if(error)throw error;resetNewsForm();showNotice(dashboardNotice,'Actualité enregistrée avec succès.');await loadNews();}catch(err){showNotice(dashboardNotice,`Erreur lors de l’enregistrement : ${err.message}`,true)}}
+async function deleteNews(id){const n=currentNews.find(x=>x.id===id);if(!n||!confirm(`Supprimer l’actualité « ${n.title} » ?`))return;const {error}=await supabaseClient.from('news').delete().eq('id',id);if(error){showNotice(dashboardNotice,`Impossible de supprimer l’actualité : ${error.message}`,true);return;}showNotice(dashboardNotice,'Actualité supprimée.');await loadNews();}
+function switchTab(tab){const isNews=tab==='news';animalsSection.classList.toggle('hidden',isNews);newsSection.classList.toggle('hidden',!isNews);tabAnimals.classList.toggle('active',!isNews);tabNews.classList.toggle('active',isNews);newAnimalBtn.classList.toggle('hidden',isNews);if(isNews)loadNews();}
+async function updateView(session){if(session){loginView.classList.add('hidden');dashboardView.classList.remove('hidden');logoutBtn.classList.remove('hidden');await loadAnimals();}else{loginView.classList.remove('hidden');dashboardView.classList.add('hidden');logoutBtn.classList.add('hidden');}}
+loginForm.addEventListener('submit',async e=>{e.preventDefault();hideNotice(loginNotice);const {error}=await supabaseClient.auth.signInWithPassword({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value});if(error)showNotice(loginNotice,error.message,true)});logoutBtn.addEventListener('click',()=>supabaseClient.auth.signOut());newAnimalBtn.addEventListener('click',()=>openForm());document.getElementById('cancelFormBtn').addEventListener('click',resetForm);animalForm.addEventListener('submit',saveAnimal);fileInput.addEventListener('change',()=>document.getElementById('fileName').textContent=fileInput.files[0]?.name||'Aucune nouvelle photo sélectionnée.');tableBody.addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const a=currentAnimals.find(x=>x.id===b.dataset.id);if(b.dataset.action==='edit')openForm(a);if(b.dataset.action==='delete')deleteAnimal(b.dataset.id);});
+tabAnimals.addEventListener('click',()=>switchTab('animals'));tabNews.addEventListener('click',()=>switchTab('news'));newNewsBtn.addEventListener('click',()=>openNewsForm());document.getElementById('cancelNewsBtn').addEventListener('click',resetNewsForm);newsForm.addEventListener('submit',saveNews);newsImageInput.addEventListener('change',()=>document.getElementById('newsFileName').textContent=newsImageInput.files[0]?.name||'Aucune nouvelle image sélectionnée.');newsTableBody.addEventListener('click',e=>{const b=e.target.closest('button[data-news-action]');if(!b)return;const n=currentNews.find(x=>x.id===b.dataset.id);if(b.dataset.newsAction==='edit')openNewsForm(n);if(b.dataset.newsAction==='delete')deleteNews(b.dataset.id);});
+supabaseClient.auth.onAuthStateChange((_event,session)=>updateView(session));
+(async()=>{const {data:{session}}=await supabaseClient.auth.getSession();await updateView(session)})();

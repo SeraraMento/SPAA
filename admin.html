@@ -41,6 +41,7 @@
 .file-name{font-size:.8rem;color:var(--ink-soft);margin-top:4px;}
 .hidden{display:none!important;}
 @media(max-width:680px){.form-grid{grid-template-columns:1fr}.admin-top{align-items:flex-start;flex-direction:column}.admin-panel{padding:18px}.admin-header .header-inner{padding-left:20px;padding-right:20px}}
+.admin-tabs{display:flex;gap:8px;margin:0 0 20px}.admin-tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}.admin-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}.admin-subtop{margin-top:8px}.news-admin-thumb{width:72px;height:54px;border-radius:8px;object-fit:cover;background:var(--sand)}
 </style>
 </head>
 <body class="admin-page">
@@ -69,12 +70,14 @@
 
   <section id="dashboardView" class="hidden">
     <div class="admin-top">
-      <div><p class="hero-eyebrow">Back-office</p><h1>Gestion des animaux</h1><p>Ajoutez, modifiez ou retirez les pensionnaires affichés sur le site.</p></div>
+      <div><p class="hero-eyebrow">Back-office</p><h1>Gestion du site</h1><p>Gérez les animaux et les actualités affichés sur le site.</p></div>
       <button id="newAnimalBtn" class="btn btn-primary">+ Ajouter un animal</button>
     </div>
 
+    <div class="admin-tabs"><button id="tabAnimals" class="admin-tab active">🐾 Animaux</button><button id="tabNews" class="admin-tab">📰 Actualités</button></div>
     <div id="dashboardNotice" class="notice hidden"></div>
 
+    <section id="animalsSection">
     <section id="animalFormPanel" class="admin-panel hidden" style="margin-bottom:24px">
       <h2 id="formTitle">Ajouter un animal</h2>
       <form id="animalForm">
@@ -101,6 +104,26 @@
         </table>
       </div>
       <div id="emptyAnimals" class="empty hidden">Aucun animal enregistré pour le moment.</div>
+    </section>
+    </section>
+
+    <section id="newsSection" class="hidden">
+      <div class="admin-top admin-subtop"><div><p class="hero-eyebrow">Publication</p><h2>Actualités</h2><p>Publiez les nouvelles du refuge. Les publications publiées apparaissent automatiquement sur l’accueil.</p></div><button id="newNewsBtn" class="btn btn-primary">+ Ajouter une actualité</button></div>
+      <section id="newsFormPanel" class="admin-panel hidden" style="margin-bottom:24px">
+        <h2 id="newsFormTitle">Ajouter une actualité</h2>
+        <form id="newsForm"><input type="hidden" id="newsId">
+          <div class="form-grid">
+            <div class="form-field full"><label for="newsTitle">Titre *</label><input id="newsTitle" required maxlength="180"></div>
+            <div class="form-field full"><label for="newsExcerpt">Résumé</label><textarea id="newsExcerpt" style="min-height:95px" maxlength="300" placeholder="Court texte affiché sur l’accueil et la liste des actualités."></textarea></div>
+            <div class="form-field full"><label for="newsContent">Contenu *</label><textarea id="newsContent" required placeholder="Contenu complet de l’actualité. Séparez les paragraphes par une ligne vide."></textarea></div>
+            <div class="form-field"><label for="newsPublished">Statut</label><select id="newsPublished"><option value="true">Publié</option><option value="false">Brouillon</option></select></div>
+            <div class="form-field"><label for="newsDate">Date de publication</label><input id="newsDate" type="datetime-local"></div>
+            <div class="form-field full"><label for="newsImage">Image</label><input id="newsImage" type="file" accept="image/*"><div id="newsFileName" class="file-name">Aucune nouvelle image sélectionnée.</div></div>
+          </div>
+          <div class="form-actions"><button type="button" id="cancelNewsBtn" class="btn btn-ghost">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+        </form>
+      </section>
+      <section class="admin-panel"><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Image</th><th>Actualité</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="newsTableBody"></tbody></table></div><div id="emptyNews" class="empty hidden">Aucune actualité enregistrée.</div></section>
     </section>
   </section>
 </main>

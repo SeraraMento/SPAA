@@ -316,3 +316,4 @@ a{ color: inherit; text-decoration: none; }
 .admin-link{font-size:.82rem;font-weight:600;color:var(--pine);padding:8px 6px;border-radius:8px;}
 .admin-link:hover{text-decoration:underline;}
 @media(max-width:900px){.nav-actions{width:100%;justify-content:center;margin-top:12px;}.admin-link{font-size:.9rem;}}
+.news-thumb-image{object-fit:cover;width:100%;display:block}.news-card-link{display:block;color:inherit}.news-card-link:hover h3{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}

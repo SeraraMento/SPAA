@@ -149,25 +149,10 @@
     <div class="wrap">
       <div class="section-head">
         <h2>Dernières actualités</h2>
-        <a href="#" class="link-more">Voir tout</a>
+        <a href="actualites.html" class="link-more">Voir tout</a>
       </div>
-      <div class="news-grid">
-        <article class="news-card news-card-featured">
-          <div class="news-thumb" style="background:#EFE6DA"></div>
-          <p class="news-date">8 juin 2026</p>
-          <h3>Comment préparer une bonne adoption ?</h3>
-          <p>Nos conseils avant d'accueillir un animal chez vous : aménager l'espace, anticiper les premiers jours et bien choisir son compagnon.</p>
-        </article>
-        <article class="news-card">
-          <div class="news-thumb" style="background:#E3EEEA"></div>
-          <p class="news-date">2 juin 2026</p>
-          <h3>Une nouvelle portée de chatons au refuge</h3>
-        </article>
-        <article class="news-card">
-          <div class="news-thumb" style="background:#F5E6D8"></div>
-          <p class="news-date">28 mai 2026</p>
-          <h3>Merci à tous les donateurs de la collecte de mai</h3>
-        </article>
+      <div class="news-grid" id="homeNewsGrid">
+        <div class="animal-loading">Chargement des actualités…</div>
       </div>
     </div>
   </section>
@@ -214,5 +199,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="JS/supabase.js"></script>
 <script src="JS/script.js"></script>
+<script src="JS/actualites-home.js"></script>
 </body>
 </html>

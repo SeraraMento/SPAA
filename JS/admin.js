@@ -152,6 +152,22 @@ function escapeHtml(value) {
 
 async function updateView(session) {
   if (session) {
+    try {
+      const role = await getCurrentTeamRole();
+      if (!['admin', 'benevole'].includes(role)) {
+        await supabaseClient.auth.signOut();
+        showNotice(loginNotice, 'Votre compte est en attente de validation par un administrateur de la SPAA.', true);
+        return;
+      }
+      document.querySelector('.admin-top p:last-child').textContent = role === 'admin'
+        ? 'Administrateur : gérez les animaux du refuge et les accès de l’équipe.'
+        : 'Bénévole : ajoutez ou mettez à jour les animaux du refuge.';
+    } catch (error) {
+      console.error('[SPAA Role]', error);
+      await supabaseClient.auth.signOut();
+      showNotice(loginNotice, 'Impossible de vérifier les droits de votre compte.', true);
+      return;
+    }
     loginView.classList.add('hidden');
     dashboardView.classList.remove('hidden');
     logoutBtn.classList.remove('hidden');

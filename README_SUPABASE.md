@@ -1,37 +1,56 @@
-# SPAA — intégration Supabase
+# SPAA — intégration Supabase V2 (comptes + rôles)
 
-## 1. Installer la base
+## 1. Installer / mettre à jour la base
 
-1. Ouvrir le projet Supabase.
-2. Aller dans **SQL Editor**.
-3. Ouvrir `SQL_setup.sql`.
-4. Exécuter tout le script.
+Dans **Supabase > SQL Editor**, exécuter `SQL_setup.sql` en entier.
 
 Le script crée :
 - `public.animals`
-- les politiques RLS de lecture publique et d'écriture authentifiée
+- `public.team_members` avec les rôles `pending`, `benevole`, `admin`
+- un trigger qui place automatiquement tout nouveau compte en `pending`
+- les règles RLS adaptées aux rôles
 - le bucket Storage `animal-photos`
-- les politiques Storage associées
 
-## 2. Créer le premier compte administrateur
+## 2. Très important : aucun nouveau compte n'est admin
 
-Dans Supabase : **Authentication > Users > Add user**.
+Lorsqu'une personne utilise **Créer un compte**, son rôle est automatiquement :
 
-Créer l'adresse e-mail et le mot de passe du responsable du refuge.
+`pending`
 
-Puis ouvrir `admin.html` sur le site et se connecter.
+Elle peut donc créer son compte, mais ne peut pas gérer les animaux ni accéder au back-office tant qu'un administrateur ne l'a pas validée.
 
-> V1 : tout utilisateur authentifié dispose des droits du back-office. Avant la mise en production, il est recommandé de remplacer cette règle par une vraie table de rôles (`admin`, `benevole`).
+## 3. Créer le premier administrateur
 
-## 3. Fonctionnement
+Après avoir créé le premier compte depuis `connexion.html`, exécuter dans Supabase SQL Editor :
 
-- Les visiteurs voient automatiquement les animaux `available` sur la page d'accueil.
-- L'administrateur peut créer/modifier/supprimer un animal.
-- Une photo peut être envoyée dans Supabase Storage.
-- Les données sont ensuite réutilisées par la future page `/animaux`.
+```sql
+update public.team_members tm
+set role = 'admin'
+from auth.users u
+where tm.user_id = u.id
+  and u.email = 'TON-EMAIL-ADMIN@exemple.fr';
+```
 
-## Sécurité
+Remplacer l'adresse par celle du responsable.
 
-La clé présente dans `JS/supabase.js` est une **publishable key**. Elle peut être utilisée côté navigateur ; les permissions réelles sont contrôlées par RLS.
+Ensuite, ce compte peut être utilisé pour administrer le site.
 
-Ne jamais remplacer cette clé par une clé `sb_secret_...` ou `service_role` dans le navigateur.
+## 4. Donner l'accès bénévole à un compte
+
+Un administrateur peut valider un compte en exécutant :
+
+```sql
+update public.team_members tm
+set role = 'benevole'
+from auth.users u
+where tm.user_id = u.id
+  and u.email = 'EMAIL-DU-BENEVOLE@exemple.fr';
+```
+
+## 5. Rôles
+
+- `pending` : compte créé mais pas encore validé, aucun accès au back-office.
+- `benevole` : peut ajouter et modifier les animaux.
+- `admin` : accès équipe complet et suppression des animaux.
+
+La création de compte publique ne donne donc jamais automatiquement le rôle `admin`.

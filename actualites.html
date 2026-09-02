@@ -14,19 +14,49 @@
 </style>
 </head>
 <body>
-<header class="site-header">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+<header class="site-header" id="haut">
   <div class="wrap header-inner">
-    <a class="logo" href="index.html" aria-label="SPAA accueil"><svg class="logo-mark" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="20" r="9" fill="#E1723B"/><circle cx="7" cy="10" r="4.2" fill="#2F5C52"/><circle cx="27" cy="10" r="4.2" fill="#2F5C52"/><circle cx="10.5" cy="3.5" r="3.1" fill="#E1723B"/><circle cx="23.5" cy="3.5" r="3.1" fill="#E1723B"/></svg><span class="logo-word">SPAA</span></a>
-    <nav class="primary-nav" id="primaryNav"><ul><li><a href="index.html#mission">Le refuge</a></li><li><a href="index.html#animaux">Adopter</a></li><li><a class="active" href="actualites.html">Actualités</a></li><li><a href="index.html#contact">Contact</a></li></ul></nav>
-    <div class="nav-actions"><a href="connexion.html" class="admin-link">Espace équipe</a><button class="nav-toggle" id="navToggle" aria-expanded="false" aria-label="Ouvrir le menu">☰</button></div>
+    <a class="logo" href="index.html" aria-label="SPAA, accueil">
+      <svg class="logo-mark" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <circle cx="17" cy="20" r="9" fill="#E1723B"/>
+        <circle cx="7" cy="10" r="4.2" fill="#2F5C52"/>
+        <circle cx="27" cy="10" r="4.2" fill="#2F5C52"/>
+        <circle cx="10.5" cy="3.5" r="3.1" fill="#E1723B"/>
+        <circle cx="23.5" cy="3.5" r="3.1" fill="#E1723B"/>
+      </svg>
+      <span class="logo-word">SPAA</span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+
+    <nav class="primary-nav" id="primaryNav">
+      <ul>
+        <li><a href="index.html#haut">Accueil</a></li>
+        <li><a href="index.html#mission">Présentation</a></li>
+        <li><a href="index.html#animaux">Animaux</a></li>
+        <li><a href="actualites.html" class="active" aria-current="page">Actualités</a></li>
+        <li><a href="index.html#evenement">Agenda</a></li>
+        <li><a href="index.html#faq">FAQ</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="btn btn-primary btn-nav" href="index.html#animaux">Adopter</a>
+        <a class="admin-link" href="connexion.html">Espace équipe</a>
+      </div>
+    </nav>
   </div>
 </header>
-<main>
+<main id="contenu">
   <section class="news-page"><div class="wrap"><div class="section-head"><div><p class="hero-eyebrow">La vie du refuge</p><h1>Actualités</h1><p class="section-intro">Retrouvez les dernières nouvelles du refuge, les arrivées, les soins, les adoptions et les événements.</p></div></div><div id="newsList" class="news-list"><div class="news-loading">Chargement des actualités…</div></div></div></section>
 </main>
 <footer class="site-footer"><div class="wrap footer-inner"><div class="footer-brand"><div class="footer-logo logo-word">SPAA</div><p>Un refuge, des histoires, des familles.</p></div><nav class="footer-nav"><a href="index.html">Accueil</a><a href="index.html#animaux">Animaux</a><a href="actualites.html">Actualités</a><a href="index.html#contact">Contact</a></nav><div class="footer-contact"><p>contact@spaa.fr</p><p>Refuge SPAA</p></div></div><div class="footer-bottom"><p>© 2026 SPAA — Site vitrine.</p></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="JS/supabase.js"></script>
+<script src="JS/script.js"></script>
 <script src="JS/actualites.js"></script>
 </body>
 </html>

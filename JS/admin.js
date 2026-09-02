@@ -42,7 +42,38 @@ function renderFAQAdmin(){faqTableBody.innerHTML='';emptyFaq.classList.toggle('h
 async function saveFAQ(e){e.preventDefault();hideNotice(dashboardNotice);const id=faqFields.id.value||crypto.randomUUID();const payload={id,question:faqFields.question.value.trim(),answer:faqFields.answer.value.trim(),published:faqFields.published.value==='true',sort_order:Number(faqFields.order.value||0)};try{const {error}=await supabaseClient.from('faq_items').upsert(payload);if(error)throw error;resetFaqForm();showNotice(dashboardNotice,'Question FAQ enregistrée avec succès.');await loadFAQAdmin();}catch(err){showNotice(dashboardNotice,`Erreur lors de l’enregistrement : ${err.message}`,true)}}
 async function deleteFAQ(id){const f=currentFaq.find(x=>x.id===id);if(!f||!confirm(`Supprimer la question « ${f.question} » ?`))return;const {error}=await supabaseClient.from('faq_items').delete().eq('id',id);if(error){showNotice(dashboardNotice,`Impossible de supprimer la question : ${error.message}`,true);return;}showNotice(dashboardNotice,'Question supprimée.');await loadFAQAdmin();}
 function switchTab(tab){const isNews=tab==='news',isEvents=tab==='events',isFaq=tab==='faq';animalsSection.classList.toggle('hidden',isNews||isEvents||isFaq);newsSection.classList.toggle('hidden',!isNews);eventsSection.classList.toggle('hidden',!isEvents);faqSection.classList.toggle('hidden',!isFaq);tabAnimals.classList.toggle('active',!isNews&&!isEvents&&!isFaq);tabNews.classList.toggle('active',isNews);tabEvents.classList.toggle('active',isEvents);tabFaq?.classList.toggle('active',isFaq);newAnimalBtn.classList.toggle('hidden',isNews||isEvents||isFaq);if(isNews)loadNews();if(isEvents)loadEvents();if(isFaq)loadFAQAdmin();}
-async function updateView(session){if(session){loginView.classList.add('hidden');dashboardView.classList.remove('hidden');logoutBtn.classList.remove('hidden');await loadAnimals();}else{loginView.classList.remove('hidden');dashboardView.classList.add('hidden');logoutBtn.classList.add('hidden');}}
+async function updateView(session){
+  if(!session){
+    loginView.classList.remove('hidden');
+    dashboardView.classList.add('hidden');
+    logoutBtn.classList.add('hidden');
+    return;
+  }
+
+  try{
+    const member = await getCurrentTeamMember();
+    if(member && (member.active === false || member.role === 'pending')){
+      await supabaseClient.auth.signOut();
+      window.location.replace('connexion.html');
+      return;
+    }
+    if(member?.must_change_password){
+      window.location.replace('connexion.html');
+      return;
+    }
+
+    loginView.classList.add('hidden');
+    dashboardView.classList.remove('hidden');
+    logoutBtn.classList.remove('hidden');
+    await loadAnimals();
+  }catch(err){
+    console.error('[SPAA Admin access]', err);
+    showNotice(loginNotice, 'Impossible de vérifier vos droits d’accès. Réessayez.', true);
+    loginView.classList.remove('hidden');
+    dashboardView.classList.add('hidden');
+    logoutBtn.classList.add('hidden');
+  }
+}
 loginForm.addEventListener('submit',async e=>{e.preventDefault();hideNotice(loginNotice);const {error}=await supabaseClient.auth.signInWithPassword({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value});if(error)showNotice(loginNotice,error.message,true)});logoutBtn.addEventListener('click',()=>supabaseClient.auth.signOut());newAnimalBtn.addEventListener('click',()=>openForm());document.getElementById('cancelFormBtn').addEventListener('click',resetForm);animalForm.addEventListener('submit',saveAnimal);fileInput.addEventListener('change',()=>{const files=[...fileInput.files];document.getElementById('fileName').textContent=files.length?`${files.length} photo(s) sélectionnée(s).`:'Vous pouvez sélectionner plusieurs photos.';if(photoPreview){photoPreview.innerHTML=files.map(f=>{const url=URL.createObjectURL(f);return `<div class="admin-photo-item"><img src="${url}" alt="Aperçu ${esc(f.name)}"><span>${esc(f.name)}</span></div>`}).join('')}});tableBody.addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const a=currentAnimals.find(x=>x.id===b.dataset.id);if(b.dataset.action==='edit')openForm(a);if(b.dataset.action==='delete')deleteAnimal(b.dataset.id);});
 tabAnimals.addEventListener('click',()=>switchTab('animals'));tabNews.addEventListener('click',()=>switchTab('news'));newNewsBtn.addEventListener('click',()=>openNewsForm());document.getElementById('cancelNewsBtn').addEventListener('click',resetNewsForm);newsForm.addEventListener('submit',saveNews);newsImageInput.addEventListener('change',()=>document.getElementById('newsFileName').textContent=newsImageInput.files[0]?.name||'Aucune nouvelle image sélectionnée.');newsTableBody.addEventListener('click',e=>{const b=e.target.closest('button[data-news-action]');if(!b)return;const n=currentNews.find(x=>x.id===b.dataset.id);if(b.dataset.newsAction==='edit')openNewsForm(n);if(b.dataset.newsAction==='delete')deleteNews(b.dataset.id);});
 supabaseClient.auth.onAuthStateChange((_event,session)=>updateView(session));

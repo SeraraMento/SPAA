@@ -56,3 +56,39 @@ Après mise à jour du projet, exécuter `SQL_setup.sql` dans Supabase si la tab
 
 ### Mentions légales
 Une page `mentions-legales.html` a été ajoutée. Les informations d\’identification de l\’association sont laissées volontairement entre crochets et doivent être remplacées par les informations officielles avant publication.
+
+
+### Première connexion des membres
+
+La table `team_members` contient notamment :
+- `role` : `pending`, `benevole` ou `admin`
+- `active` : compte activé ou non
+- `must_change_password` : force le changement du mot de passe à la prochaine connexion
+
+Les nouvelles inscriptions créées avec `connexion.html` sont automatiquement ajoutées avec le rôle `pending` et ne deviennent jamais administrateur.
+
+Pour préparer un compte déjà créé afin qu'il fasse un changement de mot de passe à sa prochaine connexion, un administrateur peut exécuter :
+
+```sql
+UPDATE public.team_members tm
+SET role = 'benevole',
+    active = true,
+    must_change_password = true
+FROM auth.users u
+WHERE tm.user_id = u.id
+  AND u.email = 'membre@exemple.fr';
+```
+
+Pour un administrateur :
+
+```sql
+UPDATE public.team_members tm
+SET role = 'admin',
+    active = true,
+    must_change_password = true
+FROM auth.users u
+WHERE tm.user_id = u.id
+  AND u.email = 'admin@exemple.fr';
+```
+
+Le membre se connecte alors avec son mot de passe temporaire, est automatiquement envoyé vers l'écran de première connexion, change son mot de passe puis accède au back-office.

@@ -205,3 +205,25 @@ drop policy if exists "Public can read published events" on public.events;
 create policy "Public can read published events" on public.events for select to anon, authenticated using (published = true);
 drop policy if exists "Authenticated can manage events" on public.events;
 create policy "Authenticated can manage events" on public.events for all to authenticated using (true) with check (true);
+
+-- ============================================================
+-- SPAA — FAQ
+-- ============================================================
+create table if not exists public.faq_items (
+  id uuid primary key default gen_random_uuid(),
+  question text not null,
+  answer text not null,
+  published boolean not null default true,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists faq_items_published_idx on public.faq_items(published, sort_order, created_at);
+drop trigger if exists faq_items_set_updated_at on public.faq_items;
+create trigger faq_items_set_updated_at before update on public.faq_items for each row execute function public.set_updated_at();
+alter table public.faq_items enable row level security;
+drop policy if exists "Public can read published FAQ" on public.faq_items;
+create policy "Public can read published FAQ" on public.faq_items for select to anon, authenticated using (published = true);
+drop policy if exists "Authenticated can manage FAQ" on public.faq_items;
+create policy "Authenticated can manage FAQ" on public.faq_items for all to authenticated using (true) with check (true);
+

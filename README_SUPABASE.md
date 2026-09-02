@@ -40,3 +40,15 @@ Ne jamais remplacer cette clé par une clé `sb_secret_...` ou `service_role` da
 # zip
 cd /mnt/data/spaa_agenda_work && zip -qr ../SPAA_Supabase_Agenda_V1.zip . -x '*.DS_Store'
 ls -lh ../SPAA_Supabase_Agenda_V1.zip
+
+
+## FAQ
+
+La V1 ajoute une table `faq_items` dans `SQL_setup.sql`.
+
+- `faq.html` affiche toutes les questions publiées sous forme d'accordéon.
+- `index.html` affiche les 4 premières questions publiées.
+- `admin.html` permet d'ajouter, modifier, publier/brouillon et supprimer les questions.
+- Le champ `sort_order` permet de choisir l'ordre d'affichage.
+
+Après mise à jour du projet, exécuter `SQL_setup.sql` dans Supabase si la table `faq_items` n'existe pas encore.

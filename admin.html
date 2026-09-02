@@ -74,7 +74,7 @@
       <button id="newAnimalBtn" class="btn btn-primary">+ Ajouter un animal</button>
     </div>
 
-    <div class="admin-tabs"><button id="tabAnimals" class="admin-tab active">🐾 Animaux</button><button id="tabNews" class="admin-tab">📰 Actualités</button><button id="tabEvents" class="admin-tab">📅 Agenda</button></div>
+    <div class="admin-tabs"><button id="tabAnimals" class="admin-tab active">🐾 Animaux</button><button id="tabNews" class="admin-tab">📰 Actualités</button><button id="tabEvents" class="admin-tab">📅 Agenda</button><button id="tabFaq" class="admin-tab">❓ FAQ</button></div>
     <div id="dashboardNotice" class="notice hidden"></div>
 
     <section id="animalsSection">
@@ -144,6 +144,23 @@
         </form>
       </section>
       <section class="admin-panel"><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Date</th><th>Événement</th><th>Lieu</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="eventsTableBody"></tbody></table></div><div id="emptyEvents" class="empty hidden">Aucun événement enregistré.</div></section>
+    </section>
+
+    <section id="faqSection" class="hidden">
+      <div class="admin-top admin-subtop"><div><p class="hero-eyebrow">Questions fréquentes</p><h2>FAQ</h2><p>Gérez les questions et réponses affichées sur la page FAQ et sur l’accueil.</p></div><button id="newFaqBtn" class="btn btn-primary">+ Ajouter une question</button></div>
+      <section id="faqFormPanel" class="admin-panel hidden" style="margin-bottom:24px">
+        <h2 id="faqFormTitle">Ajouter une question</h2>
+        <form id="faqForm"><input type="hidden" id="faqId">
+          <div class="form-grid">
+            <div class="form-field full"><label for="faqQuestion">Question *</label><input id="faqQuestion" required maxlength="300" placeholder="Ex. Quels documents faut-il pour adopter ?"></div>
+            <div class="form-field full"><label for="faqAnswer">Réponse *</label><textarea id="faqAnswer" required placeholder="Écrivez la réponse à cette question..."></textarea></div>
+            <div class="form-field"><label for="faqPublished">Statut</label><select id="faqPublished"><option value="true">Publié</option><option value="false">Brouillon</option></select></div>
+            <div class="form-field"><label for="faqOrder">Ordre d’affichage</label><input id="faqOrder" type="number" min="0" step="1" value="0"></div>
+          </div>
+          <div class="form-actions"><button type="button" id="cancelFaqBtn" class="btn btn-ghost">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+        </form>
+      </section>
+      <section class="admin-panel"><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Ordre</th><th>Question</th><th>Réponse</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="faqTableBody"></tbody></table></div><div id="emptyFaq" class="empty hidden">Aucune question enregistrée.</div></section>
     </section>
   </section>
 </main>

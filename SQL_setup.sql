@@ -291,3 +291,126 @@ as $$
 $$;
 
 grant execute on function public.current_user_role() to authenticated;
+
+
+-- ============================================================
+-- SPAA — Gestion des membres par les administrateurs
+-- Les administrateurs ne peuvent jamais modifier/supprimer un autre admin.
+-- Les membres standards ne peuvent pas modifier leur rôle ou leur accès.
+-- ============================================================
+
+-- Empêche les utilisateurs standards de modifier directement leur rôle/accès.
+drop policy if exists "Team members can change own profile fields" on public.team_members;
+drop policy if exists "Team members can change own password flag" on public.team_members;
+-- Aucune mise à jour directe de team_members depuis le navigateur.
+-- Les changements passent par les fonctions RPC sécurisées ci-dessous.
+
+-- Première connexion : seul le flag must_change_password peut être modifié via cette fonction.
+create or replace function public.complete_first_login()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.team_members
+  set must_change_password = false, updated_at = now()
+  where user_id = auth.uid();
+  if not found then
+    raise exception 'Profil équipe introuvable.';
+  end if;
+end;
+$$;
+grant execute on function public.complete_first_login() to authenticated;
+
+create or replace function public.is_current_user_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.team_members
+    where user_id = auth.uid()
+      and role = 'admin'
+      and active = true
+  );
+$$;
+grant execute on function public.is_current_user_admin() to authenticated;
+
+create or replace function public.admin_list_team_members()
+returns table (
+  user_id uuid,
+  email text,
+  role text,
+  active boolean,
+  must_change_password boolean,
+  created_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_current_user_admin() then
+    raise exception 'Accès administrateur requis.';
+  end if;
+
+  return query
+  select tm.user_id, u.email::text, tm.role, tm.active, tm.must_change_password, tm.created_at
+  from public.team_members tm
+  left join auth.users u on u.id = tm.user_id
+  where tm.role <> 'admin'
+  order by
+    case when tm.role = 'pending' then 0 else 1 end,
+    tm.created_at asc;
+end;
+$$;
+grant execute on function public.admin_list_team_members() to authenticated;
+
+create or replace function public.admin_update_team_member(
+  p_user_id uuid,
+  p_role text,
+  p_active boolean,
+  p_must_change_password boolean
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  target_role text;
+begin
+  if not public.is_current_user_admin() then
+    raise exception 'Accès administrateur requis.';
+  end if;
+
+  if p_role not in ('pending', 'benevole') then
+    raise exception 'Rôle invalide. Seuls pending et benevole peuvent être attribués.';
+  end if;
+
+  select role into target_role
+  from public.team_members
+  where user_id = p_user_id
+  for update;
+
+  if target_role is null then
+    raise exception 'Membre introuvable.';
+  end if;
+
+  if target_role = 'admin' then
+    raise exception 'Un autre administrateur ne peut pas être modifié depuis cet espace.';
+  end if;
+
+  update public.team_members
+  set role = p_role,
+      active = case when p_role = 'pending' then false else p_active end,
+      must_change_password = p_must_change_password,
+      updated_at = now()
+  where user_id = p_user_id;
+end;
+$$;
+grant execute on function public.admin_update_team_member(uuid, text, boolean, boolean) to authenticated;

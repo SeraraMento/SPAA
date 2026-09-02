@@ -132,10 +132,7 @@
         if (sessionError) throw sessionError;
         if (!sessionData?.session) throw new Error('La session a expiré. Reconnectez-vous.');
 
-        const { error: memberError } = await client
-          .from('team_members')
-          .update({ must_change_password: false })
-          .eq('user_id', sessionData.session.user.id);
+        const { error: memberError } = await client.rpc('complete_first_login');
         if (memberError) throw memberError;
 
         mustChangePassword = false;

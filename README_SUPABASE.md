@@ -56,3 +56,10 @@ Après mise à jour du projet, exécuter `SQL_setup.sql` dans Supabase si la tab
 
 ### Mentions légales
 Une page `mentions-legales.html` a été ajoutée. Les informations d\’identification de l\’association sont laissées volontairement entre crochets et doivent être remplacées par les informations officielles avant publication.
+
+
+## Gestion des membres (V1)
+
+Dans l'admin, l'onglet « Équipe » est visible uniquement pour un compte `admin`. Les autres administrateurs ne sont pas listés et ne peuvent pas être modifiés depuis cette interface. Un admin peut gérer les comptes `pending` et `benevole` : rôle, activation/désactivation de l'accès et obligation de changer le mot de passe à la prochaine connexion.
+
+Après mise à jour du SQL, les fonctions RPC `admin_list_team_members`, `admin_update_team_member`, `complete_first_login` et `is_current_user_admin` assurent le contrôle côté base.

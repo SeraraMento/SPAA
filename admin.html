@@ -41,7 +41,7 @@
 .file-name{font-size:.8rem;color:var(--ink-soft);margin-top:4px;}
 .hidden{display:none!important;}
 @media(max-width:680px){.form-grid{grid-template-columns:1fr}.admin-top{align-items:flex-start;flex-direction:column}.admin-panel{padding:18px}.admin-header .header-inner{padding-left:20px;padding-right:20px}}
-.admin-tabs{display:flex;gap:8px;margin:0 0 20px}.admin-tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}.admin-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}.admin-subtop{margin-top:8px}.news-admin-thumb{width:72px;height:54px;border-radius:8px;object-fit:cover;background:var(--sand)}
+.admin-tabs{display:flex;gap:8px;margin:0 0 20px}.admin-tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}.admin-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}.admin-subtop{margin-top:8px}.news-admin-thumb{width:72px;height:54px;border-radius:8px;object-fit:cover;background:var(--sand)}.member-email{font-weight:700}.member-meta{font-size:.78rem;color:var(--ink-soft);margin-top:3px}
 </style>
 </head>
 <body class="admin-page">
@@ -74,7 +74,7 @@
       <button id="newAnimalBtn" class="btn btn-primary">+ Ajouter un animal</button>
     </div>
 
-    <div class="admin-tabs"><button id="tabAnimals" class="admin-tab active">🐾 Animaux</button><button id="tabNews" class="admin-tab">📰 Actualités</button><button id="tabEvents" class="admin-tab">📅 Agenda</button><button id="tabFaq" class="admin-tab">❓ FAQ</button></div>
+    <div class="admin-tabs"><button id="tabAnimals" class="admin-tab active">🐾 Animaux</button><button id="tabNews" class="admin-tab">📰 Actualités</button><button id="tabEvents" class="admin-tab">📅 Agenda</button><button id="tabFaq" class="admin-tab">❓ FAQ</button><button id="tabMembers" class="admin-tab hidden">👥 Équipe</button></div>
     <div id="dashboardNotice" class="notice hidden"></div>
 
     <section id="animalsSection">
@@ -144,6 +144,24 @@
         </form>
       </section>
       <section class="admin-panel"><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Date</th><th>Événement</th><th>Lieu</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="eventsTableBody"></tbody></table></div><div id="emptyEvents" class="empty hidden">Aucun événement enregistré.</div></section>
+    </section>
+
+    <section id="membersSection" class="hidden">
+      <div class="admin-top admin-subtop"><div><p class="hero-eyebrow">Gestion des accès</p><h2>Membres de l’équipe</h2><p>Les administrateurs peuvent gérer les membres non administrateurs : validation, rôle, accès et première connexion.</p></div></div>
+      <section id="memberFormPanel" class="admin-panel hidden" style="margin-bottom:24px">
+        <h2 id="memberFormTitle">Gérer un membre</h2>
+        <form id="memberForm">
+          <input type="hidden" id="memberUserId">
+          <div class="form-grid">
+            <div class="form-field full"><label for="memberEmail">Adresse e-mail</label><input id="memberEmail" type="email" readonly></div>
+            <div class="form-field"><label for="memberRole">Rôle</label><select id="memberRole"><option value="pending">En attente</option><option value="benevole">Bénévole</option></select></div>
+            <div class="form-field"><label for="memberActive">Accès au back-office</label><select id="memberActive"><option value="true">Activé</option><option value="false">Désactivé</option></select><div class="member-meta">Un membre en attente est toujours désactivé jusqu’à sa validation.</div></div>
+            <div class="form-field full"><label for="memberMustChange">Première connexion</label><select id="memberMustChange"><option value="true">Demander un nouveau mot de passe à la prochaine connexion</option><option value="false">Mot de passe déjà défini</option></select></div>
+          </div>
+          <div class="form-actions"><button type="button" id="cancelMemberBtn" class="btn btn-ghost">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+        </form>
+      </section>
+      <section class="admin-panel"><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Compte</th><th>Rôle</th><th>Accès</th><th>Première connexion</th><th>Actions</th></tr></thead><tbody id="membersTableBody"></tbody></table></div><div id="emptyMembers" class="empty hidden">Aucun membre non administrateur.</div></section>
     </section>
 
     <section id="faqSection" class="hidden">

@@ -63,3 +63,9 @@ Une page `mentions-legales.html` a été ajoutée. Les informations d\’identif
 Dans l'admin, l'onglet « Équipe » est visible uniquement pour un compte `admin`. Les autres administrateurs ne sont pas listés et ne peuvent pas être modifiés depuis cette interface. Un admin peut gérer les comptes `pending` et `benevole` : rôle, activation/désactivation de l'accès et obligation de changer le mot de passe à la prochaine connexion.
 
 Après mise à jour du SQL, les fonctions RPC `admin_list_team_members`, `admin_update_team_member`, `complete_first_login` et `is_current_user_admin` assurent le contrôle côté base.
+
+
+## Correctif première connexion
+
+Si l’écran de changement de mot de passe s’affiche mais que la finalisation échoue, exécuter `SQL_fix_premiere_connexion.sql` dans Supabase.
+Le changement du mot de passe est effectué directement sur le site avec Supabase Auth ; aucune procédure de réinitialisation par e-mail n’est utilisée.

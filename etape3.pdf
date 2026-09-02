@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>SPAA — Étape 3 (mise à jour)</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Liberation Sans', Arial, sans-serif;
+    color: #2A2119;
+    font-size: 12.5px;
+    background: #fff;
+  }
+  h1,h2,h3,h4 { font-family: 'Liberation Serif', Georgia, serif; font-weight: 700; margin: 0 0 8px 0; color: #2A2119; }
+  .page {
+    width: 210mm; min-height: 297mm; position: relative;
+    padding: 18mm 16mm 16mm 16mm;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  .kicker { color: #6B6259; font-size: 10px; letter-spacing: .04em; margin-bottom: 4px; }
+  .header-line { display:flex; justify-content: space-between; align-items:center; border-bottom: 1px solid #E3D9CC; padding-bottom:6px; margin-bottom:14px; font-size: 10.5px; color:#6B6259;}
+  .footer-line { position:absolute; bottom:12mm; left:16mm; right:16mm; text-align:center; font-size:9.5px; color:#9c9187; border-top:1px solid #E3D9CC; padding-top:6px;}
+  p { line-height: 1.55; margin: 0 0 10px 0; }
+  ul { margin:0 0 10px 0; padding-left: 18px; line-height:1.55;}
+  li { margin-bottom:4px; }
+  .lead { color:#6B6259; }
+
+  /* COVER */
+  .cover { background: #FBF6F0; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
+  .cover .logo-row { display:flex; align-items:center; gap:10px; margin-bottom: 40px;}
+  .cover .logo-word { font-family:'Liberation Serif', Georgia, serif; font-size: 30px; font-weight:700; color:#2A2119;}
+  .cover .tag { color:#E1723B; letter-spacing:.12em; text-transform:uppercase; font-size:12px; font-weight:600; margin-bottom:10px;}
+  .cover h1 { font-size: 34px; max-width: 480px; line-height:1.25; margin-bottom: 14px; }
+  .cover .sub { font-size:15px; color:#6B6259; max-width:440px; margin-bottom:50px;}
+  .cover .meta { border-top:1px solid #E3D9CC; padding-top:18px; font-size:12px; color:#6B6259; width: 320px; }
+  .cover .meta div { margin-bottom:4px; }
+  .badge-updated { display:inline-block; background:#2F5C52; color:#fff; font-size:10.5px; padding:5px 12px; border-radius:999px; margin-bottom:22px; letter-spacing:.03em;}
+
+  /* SITEMAP DIAGRAM */
+  .sitemap { background:#FBF6F0; border:1px solid #E3D9CC; border-radius:14px; padding:22px; }
+  .sm-root { background:#E1723B; color:#fff; text-align:center; border-radius:10px; padding:10px 14px; width: 190px; margin: 0 auto 22px auto; font-weight:700; font-family:'Liberation Serif',serif;}
+  .sm-root small { display:block; font-weight:400; font-size:9.5px; opacity:.9; margin-top:2px;}
+  .sm-row { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom: 14px;}
+  .sm-node { background:#2F5C52; color:#fff; border-radius:8px; padding:8px 8px; width:120px; text-align:center; font-size:10.5px; font-weight:700;}
+  .sm-node small { display:block; font-weight:400; font-size:8.6px; opacity:.9; margin-top:3px; line-height:1.3;}
+  .sm-sub { background:#F0EAE0; border:1px solid #E3D9CC; border-radius:8px; padding:6px 8px; width:110px; text-align:center; font-size:9.5px; font-weight:600; color:#4a4038; margin-top:6px;}
+  .sm-cols { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+  .sm-col { display:flex; flex-direction:column; align-items:center; }
+  .sm-private { background:#2A2119; color:#fff; text-align:center; border-radius:10px; padding:10px 14px; width:210px; margin: 26px auto 14px auto; font-weight:700; font-family:'Liberation Serif',serif; font-size:11px;}
+  .sm-private small{ display:block; font-weight:400; font-size:9px; opacity:.85; margin-top:2px;}
+  .legend { display:flex; gap:18px; justify-content:center; margin-top: 10px; font-size:9.5px; color:#6B6259;}
+  .legend span { display:inline-flex; align-items:center; gap:5px;}
+  .dot { width:9px; height:9px; border-radius:50%; display:inline-block;}
+
+  /* MOCKUP FRAME */
+  .frame { border:1px solid #E3D9CC; border-radius:12px; overflow:hidden; background:#FBF6F0; margin: 10px 0 16px 0;}
+  .frame-cap { text-align:center; font-size:10px; color:#6B6259; margin-top:4px; margin-bottom:14px;}
+  .m-nav { background:#FBF6F0; display:flex; align-items:center; justify-content:space-between; padding:9px 16px; border-bottom:1px solid #E3D9CC; font-size:9px;}
+  .m-nav .brand { display:flex; align-items:center; gap:6px; font-family:'Liberation Serif',serif; font-weight:700; font-size:12px;}
+  .m-nav .brand .paw { width:14px; height:14px; border-radius:50%; background:#E1723B; position:relative; display:inline-block;}
+  .m-nav ul { list-style:none; display:flex; gap:10px; margin:0; padding:0; font-size:8.6px; color:#4a4038;}
+  .m-nav .active { color:#E1723B; font-weight:700; }
+  .m-nav .cta { background:#E1723B; color:#fff; border-radius:999px; padding:4px 10px; font-size:8.3px; font-weight:700;}
+  .m-body { padding:16px; }
+  .m-hero { background:#F0EAE0; border-radius:10px; padding:18px; display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+  .m-hero .txt h3 { font-size:14px; margin-bottom:6px;}
+  .m-hero .txt p { font-size:9.5px; margin-bottom:8px; }
+  .m-btn { display:inline-block; background:#E1723B; color:#fff; border-radius:999px; padding:5px 12px; font-size:8.6px; font-weight:700; margin-right:6px;}
+  .m-btn.ghost { background:transparent; border:1px solid #2A2119; color:#2A2119; }
+  .m-hero .art { width:70px; height:56px; background:#E3D9CC; border-radius:8px; flex-shrink:0;}
+  .m-h2 { font-size:11.5px; font-weight:700; margin: 12px 0 8px 0; font-family:'Liberation Serif',serif;}
+  .m-grid3 { display:flex; gap:8px; }
+  .m-grid4 { display:flex; gap:6px; flex-wrap:wrap;}
+  .m-card { background:#fff; border:1px solid #E3D9CC; border-radius:8px; padding:7px; flex:1; font-size:8px;}
+  .m-card .ph { background:#E3D9CC; border-radius:5px; height:34px; margin-bottom:5px;}
+  .m-card b { font-size:8.6px; display:block; margin-bottom:2px;}
+  .m-tag { display:inline-block; background:#DCEAE4; color:#2F5C52; font-size:7px; padding:1.5px 6px; border-radius:999px; margin-top:3px;}
+  .m-tag.res { background:#EFE6DA; color:#8a7e6f; }
+  .m-cta-band { background:#2F5C52; color:#fff; border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:9px;}
+  .m-cta-band .b2 { background:#fff; color:#2F5C52; border-radius:999px; padding:4px 10px; font-size:8px; font-weight:700;}
+  .m-footer { background:#2A2119; color:#cfc7bb; padding:10px 16px; font-size:7.6px; display:flex; justify-content:space-between;}
+
+  .two-col { display:flex; gap:16px; }
+  .two-col .col { flex:1; }
+
+  .m-detail { display:flex; gap:12px; margin-top:10px;}
+  .m-detail .photo { width: 40%; background:#E3D9CC; border-radius:8px; height:100px;}
+  .m-detail .info { flex:1; font-size:9px;}
+  .m-detail .info h4 { font-size:12px; margin-bottom:4px; font-family:'Liberation Serif',serif;}
+
+  .accordion-item { border:1px solid #E3D9CC; border-radius:7px; padding:7px 10px; margin-bottom:6px; font-size:9px; display:flex; justify-content:space-between; background:#fff;}
+  .agenda-item { display:flex; gap:10px; align-items:center; border:1px solid #E3D9CC; background:#fff; border-radius:7px; padding:7px 10px; margin-bottom:6px;}
+  .agenda-date { background:#E1723B; color:#fff; border-radius:6px; text-align:center; padding:4px 7px; font-size:8px; font-weight:700; width:34px;}
+  .agenda-date small { display:block; font-weight:400; font-size:6.6px;}
+  .agenda-item .txt b{ font-size:9px; display:block;} .agenda-item .txt p{font-size:8px; margin:0; color:#6B6259;}
+
+  .auth-card { background:#fff; border:1px solid #E3D9CC; border-radius:10px; padding:18px; width:220px; margin: 20px auto; text-align:center;}
+  .auth-card h4 { font-size:12px; margin-bottom:4px;}
+  .auth-card p { font-size:8.6px; color:#6B6259; margin-bottom:12px;}
+  .field { background:#FBF6F0; border:1px solid #E3D9CC; border-radius:6px; height:20px; margin-bottom:8px; }
+  .field-label { font-size:7.6px; color:#6B6259; text-align:left; margin-bottom:2px;}
+
+  .admin-shell { display:flex; }
+  .admin-side { width:120px; background:#2A2119; color:#cfc7bb; padding:12px 10px; font-size:8.6px;}
+  .admin-side .u { color:#fff; font-weight:700; margin-bottom:10px; font-size:9px;}
+  .admin-side .item { padding:6px 8px; border-radius:6px; margin-bottom:3px;}
+  .admin-side .item.active { background:#E1723B; color:#fff; font-weight:700;}
+  .admin-side .item.locked { opacity:.55; }
+  .admin-main { flex:1; padding:14px; }
+  .admin-main h4 { font-size:11px; margin-bottom:8px;}
+  .admin-row { display:flex; justify-content:space-between; align-items:center; border:1px solid #E3D9CC; border-radius:6px; padding:6px 8px; margin-bottom:5px; font-size:8px; background:#fff;}
+  .admin-row .ph { width:24px; height:20px; background:#E3D9CC; border-radius:4px; margin-right:6px;}
+  .admin-row .l { display:flex; align-items:center;}
+  .admin-btn { background:#E1723B; color:#fff; border-radius:999px; padding:5px 12px; font-size:8.3px; font-weight:700; display:inline-block; margin-bottom:10px;}
+
+  table.recap { width:100%; border-collapse: collapse; font-size:11px; margin-top: 10px;}
+  table.recap th, table.recap td { border:1px solid #E3D9CC; padding:8px 10px; text-align:left; }
+  table.recap th { background:#F0EAE0; font-family:'Liberation Serif',serif;}
+  .status-ok { color:#2F5C52; font-weight:700; }
+
+  .diff-box { background:#F0EAE0; border-left:4px solid #E1723B; border-radius:6px; padding:10px 14px; font-size:11px; margin: 10px 0 16px 0;}
+  .diff-box b { color:#C85F2C; }
+
+  .swatch-row { display:flex; gap:10px; margin: 12px 0 16px 0; }
+  .swatch { flex:1; text-align:center; }
+  .swatch .sq { height:56px; border-radius:8px; margin-bottom:5px; border:1px solid #E3D9CC;}
+  .swatch .name { font-size:9.5px; font-weight:700;}
+  .swatch .hex { font-size:9px; color:#6B6259;}
+
+  .type-sample { border:1px solid #E3D9CC; border-radius:10px; padding:16px; margin: 8px 0 16px 0; background:#fff;}
+  .type-sample .disp { font-family:'Liberation Serif',serif; font-size:22px; font-weight:700; margin-bottom:6px;}
+  .type-sample .body { font-size:12px; color:#4a4038; margin-bottom:6px;}
+  .type-sample .abc { font-size:10px; color:#9c9187; }
+
+  .ui-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; border:1px solid #E3D9CC; border-radius:10px; padding:16px; background:#fff; margin-bottom:16px;}
+
+  .principles { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .principle { background:#fff; border:1px solid #E3D9CC; border-radius:8px; padding:10px 12px; font-size:10.5px;}
+  .principle b { display:block; margin-bottom:3px; color:#2F5C52; }
+
+  .steps-list { counter-reset: step; }
+  .steps-list li { list-style:none; margin-bottom:10px; padding-left: 30px; position:relative; }
+  .steps-list li::before { counter-increment: step; content: counter(step); position:absolute; left:0; top:0; width:20px; height:20px; background:#E1723B; color:#fff; border-radius:50%; text-align:center; font-size:11px; font-weight:700; line-height:20px;}
+  .steps-list li.done::before { background:#2F5C52; }
+
+  .sig-row { display:flex; justify-content:space-between; margin-top: 50px; }
+  .sig-box { width:45%; }
+  .sig-line { border-bottom: 1px solid #2A2119; height:50px; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<section class="page cover">
+  <div class="badge-updated">Document mis à jour — v2</div>
+  <div class="logo-row">
+    <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="20" r="9" fill="#E1723B"/><circle cx="7" cy="10" r="4.2" fill="#2F5C52"/><circle cx="27" cy="10" r="4.2" fill="#2F5C52"/><circle cx="10.5" cy="3.5" r="3.1" fill="#E1723B"/><circle cx="23.5" cy="3.5" r="3.1" fill="#E1723B"/></svg>
+    <span class="logo-word">SPAA</span>
+  </div>
+  <p class="tag">Site vitrine — SPAA</p>
+  <h1>Étape 3 — Conception &amp; Maquettage</h1>
+  <p class="sub">Schéma d'arborescence, maquettes et charte graphique, mis à jour pour refléter la structure et le design réels du site livré.</p>
+  <div class="meta">
+    <div><strong>Référent association :</strong> Alexis Le Fort (Président)</div>
+    <div><strong>Site de référence :</strong> spaa-chi.vercel.app</div>
+    <div><strong>Date de mise à jour :</strong> à compléter</div>
+  </div>
+</section>
+
+<!-- ============ PAGE 2 : OBJECTIFS + CHANGELOG ============ -->
+<section class="page">
+  <div class="header-line"><span>Site vitrine SPAA — Étape 3 : Conception &amp; Maquettage</span><span>Version mise à jour</span></div>
+
+  <h2>1. Objectif de cette mise à jour</h2>
+  <p>Le document d'étape 3 initial présentait des propositions établies avant le développement du site. Depuis, plusieurs choix ont évolué au fil de la réalisation : certaines pages prévues ont été fusionnées en sections de la page d'accueil, un espace de connexion sécurisé a été ajouté, et la charte graphique proposée a été validée et mise en œuvre. Ce document met donc à jour les trois livrables de l'étape 3 pour qu'ils correspondent fidèlement au site tel qu'il existe aujourd'hui à l'adresse <strong>spaa-chi.vercel.app</strong>.</p>
+
+  <div class="diff-box">
+    <b>Principaux écarts avec la version précédente :</b>
+    <ul style="margin-top:6px;">
+      <li>Les pages <strong>« Présentation »</strong> et <strong>« Contact »</strong> ne sont plus des pages séparées : ce sont désormais des sections ancrées de la page d'accueil.</li>
+      <li>La page <strong>« Galerie photos »</strong> prévue initialement n'a pas été conservée dans le périmètre final.</li>
+      <li>Le formulaire de contact a été remplacé par une section d'appel à l'action (« Adopter un animal » / « Nous écrire » en mailto) sur la page d'accueil.</li>
+      <li>Une page <strong>« Connexion »</strong> (espace équipe) a été ajoutée pour sécuriser l'accès au back-office par identifiant et mot de passe.</li>
+      <li>Une page <strong>« Mentions légales »</strong> a été ajoutée, accessible depuis le pied de page.</li>
+      <li>Le back-office gère désormais quatre types de contenus (animaux, actualités, agenda, FAQ) ainsi que les membres de l'équipe, avec deux niveaux d'accès (bénévole / administrateur).</li>
+      <li>La charte graphique, initialement proposée à titre optionnel, a été <strong>validée et appliquée</strong> à l'ensemble du site (logo, couleurs, typographies).</li>
+    </ul>
+  </div>
+
+  <h2>2. Schéma d'arborescence du site</h2>
+  <p>Le schéma ci-dessous reflète la structure réelle du site livré : sept pages de premier niveau accessibles depuis le menu principal ou le pied de page, des sous-pages de contenu (fiche animal, article), et un espace privé (back-office) accessible après connexion.</p>
+
+  <div class="sitemap">
+    <div class="sm-root">ACCUEIL<small>Page racine — sections : Présentation, Actualités (aperçu), Contact</small></div>
+    <div class="sm-cols">
+      <div class="sm-col">
+        <div class="sm-node">Animaux du refuge<small>Galerie + fiches</small></div>
+        <div class="sm-sub">Fiche animal</div>
+      </div>
+      <div class="sm-col">
+        <div class="sm-node">Actualités<small>Articles des bénévoles</small></div>
+        <div class="sm-sub">Article</div>
+      </div>
+      <div class="sm-col">
+        <div class="sm-node">Agenda<small>Événements du refuge</small></div>
+      </div>
+      <div class="sm-col">
+        <div class="sm-node">FAQ<small>Questions sur l'adoption</small></div>
+      </div>
+      <div class="sm-col">
+        <div class="sm-node">Connexion<small>Accès espace équipe</small></div>
+      </div>
+      <div class="sm-col">
+        <div class="sm-node">Mentions légales<small>Lien en pied de page</small></div>
+      </div>
+    </div>
+
+    <div class="sm-private">BACK-OFFICE (privé)<small>Accessible après connexion</small></div>
+    <div class="sm-row">
+      <div class="sm-node" style="background:#4a4038;">Rédaction<small>Bénévole : animaux, actualités, agenda, FAQ</small></div>
+      <div class="sm-node" style="background:#4a4038;">Gestion complète<small>Administrateur : + membres de l'équipe</small></div>
+    </div>
+
+    <div class="legend">
+      <span><i class="dot" style="background:#E1723B;"></i>Page racine</span>
+      <span><i class="dot" style="background:#2F5C52;"></i>Page publique (niveau 1)</span>
+      <span><i class="dot" style="background:#E3D9CC;"></i>Sous-page / contenu</span>
+      <span><i class="dot" style="background:#2A2119;"></i>Espace privé</span>
+    </div>
+  </div>
+  <p style="margin-top:10px; font-size:11px;">Conformément au périmètre validé, l'agenda et les actualités restent sans filtre avancé ni inscription en ligne ; ces contenus sont désormais gérés dynamiquement depuis le back-office plutôt que codés en dur dans les pages.</p>
+
+  <div class="footer-line">Site vitrine SPAA — Étape 3 (mise à jour) — Page 2</div>
+</section>
+
+<!-- ============ PAGE 3 : ACCUEIL ============ -->
+<section class="page">
+  <div class="header-line"><span>Site vitrine SPAA — Étape 3 : Conception &amp; Maquettage</span><span>Maquettes</span></div>
+  <h2>3. Maquettes du site</h2>
+  <p>Les maquettes ci-après reprennent la structure et le style visuel réels du site (couleurs et typographies de la charte validée), afin de servir de référence à jour.</p>
+
+  <h3 style="margin-top:16px;">3.1 Page d'accueil (desktop)</h3>
+  <p>La page d'accueil regroupe désormais, sur une seule page, le message d'accroche, la présentation de l'association (section « Ce que nous faisons »), les dernières actualités, une sélection d'animaux à l'adoption, et la section de contact / appel au don.</p>
+
+  <div class="frame">
+    <div class="m-nav">
+      <div class="brand"><span class="paw"></span>SPAA</div>
+      <ul><li class="active">Accueil</li><li>Présentation</li><li>Animaux</li><li>Actualités</li><li>Agenda</li><li>FAQ</li><li>Contact</li></ul>
+      <div style="display:flex; gap:6px; align-items:center;"><span class="m-nav cta" style="background:#E1723B;color:#fff;border-radius:999px;padding:4px 10px;font-size:8px;">Adopter</span></div>
+    </div>
+    <div class="m-body">
+      <div class="m-hero">
+        <div class="txt">
+          <h3>Chaque animal mérite un foyer, pas une cage.</h3>
+          <p>L'association SPAA recueille, soigne et présente les animaux du refuge en attente d'adoption.</p>
+          <span class="m-btn">Voir les animaux à adopter</span><span class="m-btn ghost">Faire un don</span>
+        </div>
+        <div class="art"></div>
+      </div>
+
+      <div class="m-h2">Ce que nous faisons <span style="float:right; color:#E1723B; font-size:8px;">(section « Présentation »)</span></div>
+      <div class="m-grid3">
+        <div class="m-card"><div class="ph"></div><b>Informer sur nos événements</b>Portes ouvertes, collectes, marchés associatifs.</div>
+        <div class="m-card"><div class="ph"></div><b>Partager la vie du refuge</b>Actualités publiées chaque semaine par les bénévoles.</div>
+        <div class="m-card"><div class="ph"></div><b>Accompagner les adoptants</b>FAQ, fiches détaillées et contact direct.</div>
+      </div>
+
+      <div class="m-h2">Dernières actualités</div>
+      <div class="m-grid3">
+        <div class="m-card"><div class="ph"></div><b>Titre de l'actualité 1</b>Résumé court de l'article.</div>
+        <div class="m-card"><div class="ph"></div><b>Titre de l'actualité 2</b>Résumé court de l'article.</div>
+        <div class="m-card"><div class="ph"></div><b>Titre de l'actualité 3</b>Résumé court de l'article.</div>
+      </div>
+
+      <div class="m-h2">Ils attendent une famille</div>
+      <div class="m-grid4">
+        <div class="m-card" style="min-width:22%;"><div class="ph"></div><b>Rex</b><span class="m-tag">Disponible</span></div>
+        <div class="m-card" style="min-width:22%;"><div class="ph"></div><b>Nala</b><span class="m-tag">Disponible</span></div>
+        <div class="m-card" style="min-width:22%;"><div class="ph"></div><b>Milo</b><span class="m-tag">Disponible</span></div>
+        <div class="m-card" style="min-width:22%;"><div class="ph"></div><b>Câline</b><span class="m-tag res">Réservé</span></div>
+      </div>
+
+      <div class="m-cta-band">
+        <div><b style="display:block;font-size:10px;">Envie d'aider le refuge ? <span style="font-weight:400; opacity:.85;">(section « Contact »)</span></b>Adopter, faire un don ou devenir bénévole.</div>
+        <div><span class="b2">Adopter un animal</span> <span class="b2" style="background:transparent;border:1px solid #fff;color:#fff;">Nous écrire</span></div>
+      </div>
+    </div>
+    <div class="m-footer"><span>SPAA — contact@spaa.fr</span><span>Mentions légales</span></div>
+  </div>
+  <div class="frame-cap">Fig. 1 — Maquette de la page Accueil (structure réelle, sections ancrées)</div>
+
+  <div class="footer-line">Site vitrine SPAA — Étape 3 (mise à jour) — Page 3</div>
+</section>
+
+<!-- ============ PAGE 4 : ANIMAUX + FICHE ============ -->
+<section class="page">
+  <div class="header-line"><span>Site vitrine SPAA — Étape 3 : Conception &amp; Maquettage</span><span>Maquettes</span></div>
+  <h3>3.2 Animaux du refuge — liste et fiche détail</h3>
+  <p>Le contenu de cette page est désormais chargé dynamiquement depuis la base de données (au lieu d'un contenu figé) : statut (Disponible / Réservé / Adopté), plusieurs photos par animal, caractéristiques et bouton de contact pour l'adoption.</p>
+
+  <div class="frame">
+    <div class="m-nav">
+      <div class="brand"><span class="paw"></span>SPAA</div>
+      <ul><li>Accueil</li><li>Présentation</li><li class="active">Animaux</li><li>Actualités</li><li>Agenda</li><li>FAQ</li><li>Contact</li></ul>
+    </div>
+    <div class="m-body">
+      <div class="m-h2">Les animaux du refuge</div>
+      <div class="m-grid4">
+        <div class="m-card" style="min-width:22%;"><div class="ph"></div><b>Rex</b><span class="m-tag">Disponible</span></div>
+        <div class="m-card" style="min-width:22%;"><div class="ph"></div><b>Nala</b><span class="m-tag">Disponible</span></div>
+        <div class="m-card" style="min-width:22%;"><div class="ph"></div><b>Milo</b><span class="m-tag">Disponible</span></div>
+        <div class="m-card" style="min-width:22%;"><div class="ph"></div><b>Pixel</b><span class="m-tag">Disponible</span></div>
+        <div class="m-card" style="min-width:22%; margin-top:6px;"><div class="ph"></div><b>Oscar</b><span class="m-tag">Disponible</span></div>
+        <div class="m-card" style="min-width:22%; margin-top:6px;"><div class="ph"></div><b>Luna</b><span class="m-tag res">Adopté</span></div>
+        <div class="m-card" style="min-width:22%; margin-top:6px;"><div class="ph"></div><b>Balou</b><span class="m-tag res">Réservé</span></div>
+        <div class="m-card" style="min-width:22%; margin-top:6px;"><div class="ph"></div><b>Câline</b><span class="m-tag">Disponible</span></div>
+      </div>
+
+      <div class="m-h2">Détail — Fiche animal (exemple : Rex)</div>
+      <div class="m-detail">
+        <div class="photo"></div>
+        <div class="info">
+          <h4>Rex</h4>
+          <span class="m-tag">Disponible</span>
+          <p style="margin-top:6px;">Race : Croisé Labrador — Âge : 3 ans — Sexe : Mâle<br>Caractère : joueur, sociable avec les enfants, à l'aise avec d'autres chiens. Vacciné et stérilisé.</p>
+          <span class="m-btn">Contacter pour adopter</span>
+        </div>
+      </div>
+    </div>
+    <div class="m-footer"><span>SPAA — contact@spaa.fr</span><span>Mentions légales</span></div>
+  </div>
+  <div class="frame-cap">Fig. 2 — Maquette de la page Animaux du refuge et fiche détail</div>
+
+  <div class="footer-line">Site vitrine SPAA — Étape 3 (mise à jour) — Page 4</div>
+</section>
+
+<!-- ============ PAGE 5 : ACTUALITES + AGENDA (pages séparées) ============ -->
+<section class="page">
+  <div class="header-line"><span>Site vitrine SPAA — Étape 3 : Conception &amp; Maquettage</span><span>Maquettes</span></div>
+  <h3>3.3 Actualités et Agenda des événements (pages dédiées)</h3>
+  <p>Actualités et agenda sont désormais deux pages distinctes accessibles depuis le menu (au lieu d'être combinées sur une seule page), toutes deux alimentées dynamiquement depuis le back-office.</p>
+
+  <div class="two-col">
+    <div class="col">
+      <div class="frame">
+        <div class="m-nav">
+          <div class="brand"><span class="paw"></span>SPAA</div>
+          <ul style="font-size:7.6px;"><li class="active">Actualités</li></ul>
+        </div>
+        <div class="m-body" style="padding:12px;">
+          <div class="m-h2">Actualités</div>
+          <div class="m-card" style="margin-bottom:6px;"><div class="ph" style="height:44px;"></div><b>Comment préparer une bonne adoption ?</b><span style="font-size:7px; color:#6B6259;">Article vedette</span></div>
+          <div class="m-card" style="margin-bottom:6px;"><b>Titre actualité 2</b><span style="font-size:7px; color:#6B6259;">Résumé court…</span></div>
+          <div class="m-card"><b>Titre actualité 3</b><span style="font-size:7px; color:#6B6259;">Résumé court…</span></div>
+        </div>
+        <div class="m-footer"><span>SPAA</span><span>Mentions légales</span></div>
+      </div>
+      <div class="frame-cap">Fig. 3 — Page Actualités</div>
+    </div>
+    <div class="col">
+      <div class="frame">
+        <div class="m-nav">
+          <div class="brand"><span class="paw"></span>SPAA</div>
+          <ul style="font-size:7.6px;"><li class="active">Agenda</li></ul>
+        </div>
+        <div class="m-body" style="padding:12px;">
+          <div class="m-h2">Agenda des événements</div>
+          <div class="agenda-item"><div class="agenda-date">20<small>JUIN</small></div><div class="txt"><b>Journée portes ouvertes</b><p>Rencontrez l'équipe bénévole.</p></div></div>
+          <div class="agenda-item"><div class="agenda-date">05<small>JUIL</small></div><div class="txt"><b>Collecte de dons alimentaires</b><p>Avec les commerces locaux.</p></div></div>
+          <div class="agenda-item"><div class="agenda-date">14<small>AOÛT</small></div><div class="txt"><b>Marché associatif de l'été</b><p>Stand SPAA — sensibilisation.</p></div></div>
+        </div>
+        <div class="m-footer"><span>SPAA</span><span>Mentions légales</span></div>
+      </div>
+      <div class="frame-cap">Fig. 4 — Page Agenda</div>
+    </div>
+  </div>
+  <p style="font-size:11px;">Liste chronologique, sans filtre par type/date ni inscription en ligne — périmètre inchangé par rapport à la version précédente.</p>
+
+  <div class="footer-line">Site vitrine SPAA — Étape 3 (mise à jour) — Page 5</div>
+</section>
+
+<!-- ============ PAGE 6 : FAQ + CONNEXION ============ -->
+<section class="page">
+  <div class="header-line"><span>Site vitrine SPAA — Étape 3 : Conception &amp; Maquettage</span><span>Maquettes</span></div>
+  <h3>3.4 FAQ (sans formulaire de contact intégré)</h3>
+  <p>La FAQ reprend les questions fréquentes sous forme de menu déroulant. Le formulaire de contact initialement prévu sur cette page a été retiré : le contact se fait désormais via la section « Contact » de l'accueil (bouton mailto) ou par la fiche animal.</p>
+
+  <div class="frame">
+    <div class="m-nav">
+      <div class="brand"><span class="paw"></span>SPAA</div>
+      <ul><li>Accueil</li><li>Présentation</li><li>Animaux</li><li>Actualités</li><li>Agenda</li><li class="active">FAQ</li><li>Contact</li></ul>
+    </div>
+    <div class="m-body">
+      <div class="m-h2">Foire aux questions</div>
+      <div class="accordion-item">Comment préparer une bonne adoption ? <span>+</span></div>
+      <div class="accordion-item">Quels documents sont nécessaires pour adopter ? <span>+</span></div>
+      <div class="accordion-item">Puis-je rendre visite aux animaux avant d'adopter ? <span>+</span></div>
+      <div class="accordion-item">Les animaux sont-ils vaccinés et stérilisés ? <span>+</span></div>
+    </div>
+    <div class="m-footer"><span>SPAA</span><span>Mentions légales</span></div>
+  </div>
+  <div class="frame-cap">Fig. 5 — Maquette FAQ (sans bloc formulaire)</div>
+
+  <h3 style="margin-top:18px;">3.5 Connexion équipe (nouvelle page)</h3>
+  <p>Nouvelle page d'authentification protégeant l'accès au back-office : identifiant et mot de passe, avec gestion des rôles (bénévole / administrateur / en attente de validation).</p>
+  <div class="frame">
+    <div class="m-nav">
+      <div class="brand"><span class="paw"></span>SPAA</div>
+      <ul><li>Accueil</li></ul>
+    </div>
+    <div class="m-body" style="padding:10px;">
+      <div class="auth-card">
+        <h4>Connexion équipe</h4>
+        <p>Réservé aux bénévoles et administrateurs</p>
+        <div class="field-label">E-mail</div><div class="field"></div>
+        <div class="field-label">Mot de passe</div><div class="field"></div>
+        <span class="m-btn" style="width:100%; display:block;">Se connecter</span>
+      </div>
+    </div>
+    <div class="m-footer"><span>SPAA</span><span>Mentions légales</span></div>
+  </div>
+  <div class="frame-cap">Fig. 6 — Maquette de la page Connexion (espace équipe)</div>
+
+  <div class="footer-line">Site vitrine SPAA — Étape 3 (mise à jour) — Page 6</div>
+</section>
+
+<!-- ============ PAGE 7 : MOBILE + BACK-OFFICE ============ -->
+<section class="page">
+  <div class="header-line"><span>Site vitrine SPAA — Étape 3 : Conception &amp; Maquettage</span><span>Maquettes</span></div>
+  <h3>3.6 Back-office — deux niveaux d'accès</h3>
+  <p>Le back-office gère désormais quatre types de contenus (animaux, actualités, agenda, FAQ), accessibles aux bénévoles comme aux administrateurs. La gestion des membres de l'équipe (validation des accès, attribution des rôles) est réservée aux administrateurs.</p>
+
+  <div class="frame">
+    <div class="admin-shell">
+      <div class="admin-side">
+        <div class="u">Julien ▾</div>
+        <div class="item active">Animaux</div>
+        <div class="item">Actualités</div>
+        <div class="item">Événements</div>
+        <div class="item">FAQ</div>
+        <div class="item locked">Membres de l'équipe 🔒</div>
+      </div>
+      <div class="admin-main">
+        <h4>Gestion du site — Animaux</h4>
+        <span class="admin-btn">+ Ajouter un animal</span>
+        <div class="admin-row"><div class="l"><span class="ph"></span>Rex — Croisé Labrador</div><span class="m-tag">Disponible</span></div>
+        <div class="admin-row"><div class="l"><span class="ph"></span>Nala — Chatte européenne</div><span class="m-tag">Disponible</span></div>
+        <div class="admin-row"><div class="l"><span class="ph"></span>Luna — Bergère</div><span class="m-tag res">Adopté</span></div>
+      </div>
+    </div>
+    <div class="m-footer"><span>SPAA — Espace équipe</span><span>Bénévole / Administrateur</span></div>
+  </div>
+  <div class="frame-cap">Fig. 7 — Back-office : vue « Rédaction » (bénévole). L'onglet « Membres de l'équipe » n'apparaît qu'au rôle administrateur.</div>
+
+  <p style="font-size:11px; margin-top:10px;">Chaque module (animaux, actualités, événements, FAQ) propose la même logique : liste avec statut (publié / brouillon), bouton d'ajout, actions modifier / supprimer — cohérent avec l'objectif d'ergonomie « sans compétence technique requise » fixé pour les bénévoles.</p>
+
+  <h3 style="margin-top:20px;">3.7 Version mobile (responsive)</h3>
+  <p>Le site reste consultable à égalité sur mobile et ordinateur : menu en icône « burger », contenu en une colonne, cartes d'animaux en deux colonnes — comportement inchangé par rapport à la version précédente.</p>
+  <div style="display:flex; justify-content:center;">
+    <div class="frame" style="width:220px;">
+      <div class="m-nav" style="padding:8px 10px;"><div class="brand" style="font-size:10px;"><span class="paw"></span>SPAA</div><span style="font-size:12px;">≡</span></div>
+      <div class="m-body" style="padding:10px;">
+        <div class="m-hero" style="flex-direction:column; align-items:flex-start; padding:10px;">
+          <div class="art" style="width:100%; height:36px; margin-bottom:8px;"></div>
+          <h3 style="font-size:10px;">Donnez une seconde chance</h3>
+          <span class="m-btn" style="font-size:7px;">Adopter</span>
+        </div>
+        <div class="m-h2" style="font-size:9px;">Ils attendent une famille</div>
+        <div class="m-grid4">
+          <div class="m-card" style="min-width:46%;"><div class="ph"></div><b>Rex</b><span class="m-tag">Disponible</span></div>
+          <div class="m-card" style="min-width:46%;"><div class="ph"></div><b>Nala</b><span class="m-tag">Disponible</span></div>
+        </div>
+      </div>
+      <div class="m-footer" style="font-size:6.5px;"><span>SPAA</span><span>Mentions légales</span></div>
+    </div>
+  </div>
+  <div class="frame-cap">Fig. 8 — Maquette mobile de la page Accueil</div>
+
+  <div class="footer-line">Site vitrine SPAA — Étape 3 (mise à jour) — Page 7</div>
+</section>
+
+<!-- ============ PAGE 8 : CHARTE GRAPHIQUE (validée) ============ -->
+<section class="page">
+  <div class="header-line"><span>Site vitrine SPAA — Étape 3 : Conception &amp; Maquettage</span><span>Charte graphique</span></div>
+  <h2>4. Charte graphique — validée</h2>
+  <p>La proposition de charte graphique de la première version de ce document a été validée par l'association et appliquée à l'ensemble du site. Elle n'est donc plus présentée ici à titre de proposition, mais comme référence officielle du projet.</p>
+
+  <h3 style="margin-top:14px;">Logo</h3>
+  <div style="display:flex; align-items:center; gap:16px; border:1px solid #E3D9CC; border-radius:10px; padding:16px; background:#fff; margin-bottom:16px;">
+    <svg width="46" height="46" viewBox="0 0 34 34"><circle cx="17" cy="20" r="9" fill="#E1723B"/><circle cx="7" cy="10" r="4.2" fill="#2F5C52"/><circle cx="27" cy="10" r="4.2" fill="#2F5C52"/><circle cx="10.5" cy="3.5" r="3.1" fill="#E1723B"/><circle cx="23.5" cy="3.5" r="3.1" fill="#E1723B"/></svg>
+    <div><b style="font-family:'Liberation Serif',serif; font-size:16px;">SPAA</b><p style="margin:2px 0 0 0; font-size:10.5px; color:#6B6259;">Symbole patte animale, cohérent avec la piste retenue en étape 3 initiale ; intégré au menu principal de toutes les pages.</p></div>
+  </div>
+
+  <h3>Palette de couleurs</h3>
+  <div class="swatch-row">
+    <div class="swatch"><div class="sq" style="background:#E1723B;"></div><div class="name">Orange chaleureux</div><div class="hex">#E1723B</div></div>
+    <div class="swatch"><div class="sq" style="background:#2F5C52;"></div><div class="name">Vert refuge</div><div class="hex">#2F5C52</div></div>
+    <div class="swatch"><div class="sq" style="background:#2A2119;"></div><div class="name">Brun texte</div><div class="hex">#2A2119</div></div>
+    <div class="swatch"><div class="sq" style="background:#FBF6F0; border:1px solid #E3D9CC;"></div><div class="name">Crème fond</div><div class="hex">#FBF6F0</div></div>
+    <div class="swatch"><div class="sq" style="background:#EFE6DA;"></div><div class="name">Sable clair</div><div class="hex">#EFE6DA</div></div>
+  </div>
+
+  <h3>Typographie</h3>
+  <div class="type-sample">
+    <div class="disp">Titres — Fraunces</div>
+    <div class="body">Texte courant — Inter (lisible, neutre)</div>
+    <div class="abc">abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLM 0123456789</div>
+  </div>
+
+  <h3>Composants d'interface</h3>
+  <div class="ui-row">
+    <span class="m-btn">Bouton primaire</span>
+    <span class="m-btn ghost">Secondaire</span>
+    <div class="field" style="width:120px; margin:0;"></div>
+    <div class="m-card" style="max-width:110px; flex:none;"><div class="ph" style="height:20px;"></div>Carte / Card</div>
+    <span class="m-tag">Disponible</span>
+  </div>
+
+  <h3>Principes directeurs</h3>
+  <div class="principles">
+    <div class="principle"><b>Chaleureux et rassurant</b>Palette douce, coins arrondis, photos d'animaux mises en avant.</div>
+    <div class="principle"><b>Accessible</b>Contrastes suffisants, textes alternatifs sur les images, tailles de police lisibles.</div>
+    <div class="principle"><b>Simple pour les bénévoles</b>Composants d'interface cohérents et peu nombreux, back-office épuré.</div>
+    <div class="principle"><b>Responsive</b>Mêmes composants adaptés du mobile au desktop, sans perte d'information.</div>
+  </div>
+
+  <div class="footer-line">Site vitrine SPAA — Étape 3 (mise à jour) — Page 8</div>
+</section>
+
+<!-- ============ PAGE 9 : RECAP + ETAPES ============ -->
+<section class="page">
+  <div class="header-line"><span>Site vitrine SPAA — Étape 3 : Conception &amp; Maquettage</span><span>Récapitulatif</span></div>
+  <h2>5. Récapitulatif des livrables (mise à jour)</h2>
+  <table class="recap">
+    <tr><th>Livrable</th><th>Statut à l'issue de cette mise à jour</th></tr>
+    <tr><td>Schéma d'arborescence (sitemap)</td><td class="status-ok">Mis à jour — section 2, reflète la structure réelle du site</td></tr>
+    <tr><td>Maquettes basse fidélité (desktop)</td><td class="status-ok">Mises à jour — section 3</td></tr>
+    <tr><td>Maquette responsive (mobile)</td><td class="status-ok">Confirmée — section 3.7, comportement inchangé</td></tr>
+    <tr><td>Maquette back-office</td><td class="status-ok">Mise à jour — section 3.6, deux niveaux d'accès</td></tr>
+    <tr><td>Maquette Connexion équipe</td><td class="status-ok">Nouveau livrable — section 3.5</td></tr>
+    <tr><td>Charte graphique</td><td class="status-ok">Validée et appliquée — section 4</td></tr>
+  </table>
+
+  <p style="margin-top:14px;">Ces documents sont soumis à la validation d'Alexis Le Fort, Président de l'association, comme référence à jour du projet.</p>
+
+  <h2 style="margin-top:22px;">6. Rappel des 5 étapes du projet</h2>
+  <ul class="steps-list">
+    <li class="done">Recueil et analyse des besoins — réalisée</li>
+    <li class="done">Planification — réalisée</li>
+    <li class="done">Conception &amp; Maquettage — objet du présent document (mis à jour)</li>
+    <li class="done">Réalisation — réalisée (site en ligne : spaa-chi.vercel.app)</li>
+    <li>Tests &amp; recette</li>
+  </ul>
+
+  <div class="sig-row">
+    <div class="sig-box">
+      <div style="font-size:11px; margin-bottom:6px;">Nom : Alexis Le Fort — Fonction : Président</div>
+      <div style="font-size:11px; margin-bottom:26px;">Date :</div>
+      <div class="sig-line"></div>
+      <div style="font-size:9.5px; color:#6B6259; margin-top:4px;">Signature</div>
+    </div>
+  </div>
+
+  <div class="footer-line">Site vitrine SPAA — Étape 3 (mise à jour) — Page 9</div>
+</section>
+
+</body>
+</html>

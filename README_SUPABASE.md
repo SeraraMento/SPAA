@@ -35,3 +35,8 @@ Puis ouvrir `admin.html` sur le site et se connecter.
 La clé présente dans `JS/supabase.js` est une **publishable key**. Elle peut être utilisée côté navigateur ; les permissions réelles sont contrôlées par RLS.
 
 Ne jamais remplacer cette clé par une clé `sb_secret_...` ou `service_role` dans le navigateur.
+\n## Agenda\nLa table `events` est créée par `SQL_setup.sql`. L'administration permet d'ajouter, modifier, publier et supprimer les événements. La page `agenda.html` affiche les événements publiés et l'accueil affiche automatiquement le prochain événement à venir.\nEOF
+
+# zip
+cd /mnt/data/spaa_agenda_work && zip -qr ../SPAA_Supabase_Agenda_V1.zip . -x '*.DS_Store'
+ls -lh ../SPAA_Supabase_Agenda_V1.zip

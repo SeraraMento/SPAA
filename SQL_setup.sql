@@ -179,3 +179,29 @@ drop policy if exists "Authenticated can update news images" on storage.objects;
 create policy "Authenticated can update news images" on storage.objects for update to authenticated using (bucket_id='news-images') with check (bucket_id='news-images');
 drop policy if exists "Authenticated can delete news images" on storage.objects;
 create policy "Authenticated can delete news images" on storage.objects for delete to authenticated using (bucket_id='news-images');
+
+
+-- ============================================================
+-- SPAA — Agenda / événements
+-- ============================================================
+create table if not exists public.events (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  event_date date not null,
+  start_time time,
+  end_time time,
+  location text,
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists events_date_idx on public.events(event_date, start_time);
+create index if not exists events_published_idx on public.events(published);
+drop trigger if exists events_set_updated_at on public.events;
+create trigger events_set_updated_at before update on public.events for each row execute function public.set_updated_at();
+alter table public.events enable row level security;
+drop policy if exists "Public can read published events" on public.events;
+create policy "Public can read published events" on public.events for select to anon, authenticated using (published = true);
+drop policy if exists "Authenticated can manage events" on public.events;
+create policy "Authenticated can manage events" on public.events for all to authenticated using (true) with check (true);

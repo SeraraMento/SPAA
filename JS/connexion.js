@@ -40,7 +40,7 @@
     return window.supabaseClient;
   }
 
-  toggle.addEventListener('click', () => {
+  if (toggle) toggle.addEventListener('click', () => {
     mode = mode === 'login' ? 'signup' : 'login';
     renderMode();
   });

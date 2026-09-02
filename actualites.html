@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="CSS/styles.css">
 <style>
-.news-page{padding:70px 0 90px}.news-list{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}.news-card-link{display:block;color:inherit}.news-card-link:hover h2{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}.news-image{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--radius-md);background:var(--sand);display:block;margin-bottom:16px}.news-placeholder{width:100%;aspect-ratio:16/10;border-radius:var(--radius-md);background:var(--sand);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);margin-bottom:16px}.news-content h2{font-family:Fraunces,serif;font-size:1.45rem;margin-bottom:7px}.news-excerpt{color:var(--ink-soft);line-height:1.6}.news-loading{grid-column:1/-1;text-align:center;padding:45px;color:var(--ink-soft)}
+.news-page{padding:70px 0 90px}.news-list{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}.news-card-link{display:block;color:inherit}.news-card-link:hover h2{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}.news-image{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--radius-md);background:var(--sand);display:block;margin-bottom:16px}.news-placeholder{width:100%;aspect-ratio:16/10;border-radius:var(--radius-md);background:var(--sand);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);margin-bottom:16px}.news-content h2{font-family:Fraunces,serif;font-size:1.45rem;margin-bottom:7px}.news-excerpt{color:var(--ink-soft);line-height:1.6}.news-loading{grid-column:1/-1;text-align:center;padding:45px;color:var(--ink-soft)}.news-error{color:#9a3d2f}
 @media(max-width:900px){.news-list{grid-template-columns:1fr 1fr}}@media(max-width:680px){.news-list{grid-template-columns:1fr}}
 </style>
 </head>
@@ -55,6 +55,7 @@
 </main>
 <footer class="site-footer"><div class="wrap footer-inner"><div class="footer-brand"><div class="footer-logo logo-word">SPAA</div><p>Un refuge, des histoires, des familles.</p></div><nav class="footer-nav"><a href="index.html">Accueil</a><a href="index.html#animaux">Animaux</a><a href="actualites.html">Actualités</a><a href="index.html#contact">Contact</a></nav><div class="footer-contact"><p>contact@spaa.fr</p><p>Refuge SPAA</p></div></div><div class="footer-bottom"><p>© 2026 SPAA — Site vitrine.</p></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')}</script>
 <script src="JS/supabase.js"></script>
 <script src="JS/script.js"></script>
 <script src="JS/actualites.js"></script>

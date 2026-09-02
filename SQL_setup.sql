@@ -124,6 +124,28 @@ using (bucket_id = 'animal-photos');
 -- ('Nala', 'Chat', 'Européenne', '2 ans', 'Femelle', 'available', 'Câline et discrète, elle s’épanouit dans un foyer calme.'),
 -- ('Milo', 'Chien', 'Croisé Beagle', '1 an', 'Mâle', 'reserved', 'Énergique, il adore les longues balades et la compagnie.');
 
+
+-- ------------------------------------------------------------
+-- Photos multiples des animaux
+-- ------------------------------------------------------------
+create table if not exists public.animal_photos (
+  id uuid primary key default gen_random_uuid(),
+  animal_id uuid not null references public.animals(id) on delete cascade,
+  photo_url text not null,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists animal_photos_animal_idx on public.animal_photos(animal_id, sort_order, created_at);
+
+alter table public.animal_photos enable row level security;
+
+drop policy if exists "Public can read animal photos" on public.animal_photos;
+create policy "Public can read animal photos" on public.animal_photos for select to anon, authenticated using (true);
+
+drop policy if exists "Authenticated can manage animal photos" on public.animal_photos;
+create policy "Authenticated can manage animal photos" on public.animal_photos for all to authenticated using (true) with check (true);
+
 -- ============================================================
 -- SPAA — Actualités
 -- À exécuter après la première installation

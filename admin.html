@@ -90,7 +90,7 @@
           <div class="form-field"><label for="animalSex">Sexe</label><select id="animalSex"><option value="Mâle">Mâle</option><option value="Femelle">Femelle</option><option value="Inconnu">Inconnu</option></select></div>
           <div class="form-field"><label for="animalStatus">Statut *</label><select id="animalStatus"><option value="available">Disponible</option><option value="reserved">Réservé</option><option value="adopted">Adopté</option></select></div>
           <div class="form-field full"><label for="animalDescription">Présentation</label><textarea id="animalDescription" placeholder="Présentez l'animal, son caractère, ses besoins..."></textarea></div>
-          <div class="form-field full"><label for="animalPhoto">Photo principale</label><input id="animalPhoto" type="file" accept="image/*"><div id="fileName" class="file-name">Aucune nouvelle photo sélectionnée.</div></div>
+          <div class="form-field full"><label for="animalPhoto">Photos de l’animal</label><input id="animalPhoto" type="file" accept="image/*" multiple><div id="fileName" class="file-name">Vous pouvez sélectionner plusieurs photos.</div><div id="animalPhotoPreview" class="admin-photo-grid" aria-live="polite"></div></div>
         </div>
         <div class="form-actions"><button type="button" id="cancelFormBtn" class="btn btn-ghost">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div>
       </form>

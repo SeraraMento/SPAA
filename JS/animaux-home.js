@@ -10,7 +10,7 @@
   function wait(ms){return new Promise(r=>setTimeout(r,ms));}
   async function clientReady(){let t=Date.now();while(Date.now()-t<10000){if(window.supabaseClient?.from)return window.supabaseClient;await wait(100);}throw new Error('Supabase n’a pas été initialisé.');}
   function card(a){
-    const img=a.photo_url?`<img class="animal-photo" src="${esc(a.photo_url)}" alt="Photo de ${esc(a.name)}" loading="lazy">`:'<div class="animal-photo-placeholder">Photo à venir</div>';
+    const firstGallery=Array.isArray(a.animal_photos)?[...a.animal_photos].sort((x,y)=>(x.sort_order??0)-(y.sort_order??0))[0]?.photo_url:null; const primaryUrl=firstGallery||a.photo_url; const img=primaryUrl?`<img class="animal-photo" src="${esc(primaryUrl)}" alt="Photo de ${esc(a.name)}" loading="lazy">`:'<div class="animal-photo-placeholder">Photo à venir</div>';
     const meta=[a.species,a.breed,a.age,a.sex].filter(Boolean).join(' · ');
     return `<article class="animal-card"><a class="animal-card-link" href="animal.html?id=${encodeURIComponent(a.id)}"><div class="animal-portrait">${img}</div><div class="animal-body"><div class="animal-title-row"><h3>${esc(a.name)}</h3><span class="badge ${badge(a.status)}">${esc(label(a.status))}</span></div><p class="animal-meta">${esc(meta)}</p></div></a></article>`;
   }
@@ -18,7 +18,7 @@
     if(loading) loading.textContent='Chargement des animaux…';
     try{
       const c=await clientReady();
-      const {data,error}=await c.from('animals').select('id,name,species,breed,age,sex,status,photo_url,created_at').eq('status','available').order('created_at',{ascending:false}).limit(4);
+      const {data,error}=await c.from('animals').select('id,name,species,breed,age,sex,status,photo_url,created_at,animal_photos(photo_url,sort_order)').eq('status','available').order('created_at',{ascending:false}).limit(4);
       if(error)throw error;
       const rows=Array.isArray(data)?data:[];
       grid.innerHTML=rows.length?rows.map(card).join(''):'<div class="animal-loading">Aucun animal disponible à l’adoption pour le moment.</div>';

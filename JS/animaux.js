@@ -34,8 +34,10 @@
   }
 
   function card(animal) {
-    const image = animal.photo_url
-      ? `<img class="animal-photo" src="${escapeHtml(animal.photo_url)}" alt="Photo de ${escapeHtml(animal.name)}" loading="lazy">`
+    const firstGallery = Array.isArray(animal.animal_photos) ? [...animal.animal_photos].sort((x,y)=>(x.sort_order??0)-(y.sort_order??0))[0]?.photo_url : null;
+    const primaryUrl = firstGallery || animal.photo_url;
+    const image = primaryUrl
+      ? `<img class="animal-photo" src="${escapeHtml(primaryUrl)}" alt="Photo de ${escapeHtml(animal.name)}" loading="lazy">`
       : '<div class="animal-photo-placeholder">Photo à venir</div>';
     const meta = [animal.species, animal.breed, animal.age, animal.sex].filter(Boolean).join(' · ');
     return `<article class="animal-card">
@@ -58,7 +60,7 @@
       const client = await waitForSupabase();
       const { data, error } = await client
         .from('animals')
-        .select('id,name,species,breed,age,sex,status,description,photo_url,created_at')
+        .select('id,name,species,breed,age,sex,status,description,photo_url,created_at,animal_photos(photo_url,sort_order)')
         .order('created_at', { ascending: false });
       if (error) throw error;
       const rows = Array.isArray(data) ? data : [];

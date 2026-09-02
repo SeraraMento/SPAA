@@ -122,74 +122,8 @@
         <a href="#" class="link-more">Voir tous les animaux</a>
       </div>
 
-      <div class="animal-grid">
-
-        <article class="animal-card">
-          <div class="animal-portrait" style="background:#EFE6DA">
-            <svg viewBox="0 0 140 140" width="100%" aria-hidden="true">
-              <circle cx="70" cy="80" r="46" fill="#E1723B"/>
-              <path d="M28 46 L14 10 L52 30 Z" fill="#E1723B"/>
-              <path d="M112 46 L126 10 L88 30 Z" fill="#E1723B"/>
-              <ellipse cx="56" cy="78" rx="6" ry="8" fill="#2A2119"/>
-              <ellipse cx="84" cy="78" rx="6" ry="8" fill="#2A2119"/>
-              <path d="M62 96 Q70 104 78 96" stroke="#2A2119" stroke-width="4" stroke-linecap="round" fill="none"/>
-            </svg>
-          </div>
-          <div class="animal-body">
-            <div class="animal-title-row">
-              <h3>Rex</h3>
-              <span class="badge badge-available">Disponible</span>
-            </div>
-            <p class="animal-meta">Croisé Labrador · 3 ans · Mâle</p>
-            <p class="animal-desc">Joueur et sociable, à l'aise avec les enfants et les autres chiens.</p>
-            <a href="#contact" class="link-card">Voir sa fiche</a>
-          </div>
-        </article>
-
-        <article class="animal-card">
-          <div class="animal-portrait" style="background:#E3EEEA">
-            <svg viewBox="0 0 140 140" width="100%" aria-hidden="true">
-              <circle cx="70" cy="82" r="44" fill="#2F5C52"/>
-              <path d="M32 52 L18 20 L54 36 Z" fill="#2F5C52"/>
-              <path d="M108 52 L122 20 L86 36 Z" fill="#2F5C52"/>
-              <ellipse cx="57" cy="80" rx="5.5" ry="7.5" fill="#FBF6F0"/>
-              <ellipse cx="83" cy="80" rx="5.5" ry="7.5" fill="#FBF6F0"/>
-              <path d="M63 98 Q70 104 77 98" stroke="#FBF6F0" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-            </svg>
-          </div>
-          <div class="animal-body">
-            <div class="animal-title-row">
-              <h3>Nala</h3>
-              <span class="badge badge-available">Disponible</span>
-            </div>
-            <p class="animal-meta">Chatte européenne · 2 ans · Femelle</p>
-            <p class="animal-desc">Câline et discrète, s'épanouit dans un foyer calme.</p>
-            <a href="#contact" class="link-card">Voir sa fiche</a>
-          </div>
-        </article>
-
-        <article class="animal-card">
-          <div class="animal-portrait" style="background:#F5E6D8">
-            <svg viewBox="0 0 140 140" width="100%" aria-hidden="true">
-              <circle cx="70" cy="80" r="46" fill="#C85F2C"/>
-              <circle cx="34" cy="46" r="16" fill="#C85F2C"/>
-              <circle cx="106" cy="46" r="16" fill="#C85F2C"/>
-              <ellipse cx="56" cy="78" rx="6" ry="8" fill="#2A2119"/>
-              <ellipse cx="84" cy="78" rx="6" ry="8" fill="#2A2119"/>
-              <path d="M62 96 Q70 102 78 96" stroke="#2A2119" stroke-width="4" stroke-linecap="round" fill="none"/>
-            </svg>
-          </div>
-          <div class="animal-body">
-            <div class="animal-title-row">
-              <h3>Milo</h3>
-              <span class="badge badge-reserved">Réservé</span>
-            </div>
-            <p class="animal-meta">Croisé Beagle · 1 an · Mâle</p>
-            <p class="animal-desc">Énergique, adore les longues balades et la compagnie.</p>
-            <a href="#contact" class="link-card">Voir sa fiche</a>
-          </div>
-        </article>
-
+      <div class="animal-grid" id="homeAnimalsGrid">
+        <div class="animal-loading" id="animalsLoading">Chargement des animaux…</div>
       </div>
     </div>
   </section>
@@ -277,6 +211,8 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="JS/supabase.js"></script>
 <script src="JS/script.js"></script>
 </body>
 </html>

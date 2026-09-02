@@ -305,3 +305,9 @@ a{ color: inherit; text-decoration: none; }
   .footer-inner{ grid-template-columns: 1fr; }
   .event-inner{ text-align:left; }
 }
+
+/* ---------- Animaux dynamiques Supabase ---------- */
+.animal-loading{grid-column:1/-1;padding:35px;text-align:center;color:var(--ink-soft);}
+.animal-photo{width:100%;aspect-ratio:1.25/1;object-fit:cover;display:block;}
+.animal-photo-placeholder{aspect-ratio:1.25/1;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);background:var(--sand);font-size:.85rem;}
+.badge-adopted{background:#ece7e1;color:#6d6258;}

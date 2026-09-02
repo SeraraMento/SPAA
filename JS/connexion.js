@@ -2,6 +2,8 @@
   const form = document.getElementById('authForm');
   const email = document.getElementById('authEmail');
   const password = document.getElementById('authPassword');
+  const passwordConfirm = document.getElementById('authPasswordConfirm');
+  const passwordConfirmField = document.getElementById('authPasswordConfirmField');
   const notice = document.getElementById('authNotice');
   const submit = document.getElementById('authSubmit');
   const toggle = document.getElementById('authToggle');
@@ -9,13 +11,9 @@
   const subtitle = document.getElementById('authSubtitle');
   const helper = document.getElementById('authHelper');
   const back = document.getElementById('backAdmin');
-  const passwordPanel = document.getElementById('passwordChangePanel');
-  const passwordChangeForm = document.getElementById('passwordChangeForm');
-  const newPassword = document.getElementById('newPassword');
-  const confirmPassword = document.getElementById('confirmPassword');
-  const passwordChangeSubmit = document.getElementById('passwordChangeSubmit');
 
   let mode = 'login';
+  let mustChangePassword = false;
 
   function setNotice(message = '', error = false) {
     notice.textContent = message;
@@ -25,184 +23,158 @@
 
   function renderMode(clearNotice = true) {
     const signup = mode === 'signup';
-    form.classList.remove('hidden');
-    passwordPanel?.classList.add('hidden');
-    title.textContent = signup ? 'Créer un compte' : 'Connexion équipe';
-    subtitle.textContent = signup
-      ? 'Créez votre accès pour rejoindre l’espace privé de la SPAA.'
-      : 'Connectez-vous pour accéder au back-office et gérer les contenus du refuge.';
-    submit.textContent = signup ? 'Créer mon compte' : 'Se connecter';
-    toggle.textContent = signup ? 'J’ai déjà un compte' : 'Créer un compte';
-    helper.textContent = signup
-      ? 'Un compte nouvellement créé est en attente de validation par l’équipe.'
-      : 'Accès réservé à l’équipe du refuge.';
+    const change = mode === 'change-password';
+    title.textContent = change ? 'Choisissez votre nouveau mot de passe' : (signup ? 'Créer un compte' : 'Connexion équipe');
+    subtitle.textContent = change
+      ? 'Première connexion : votre mot de passe doit être modifié avant d’accéder à l’espace équipe.'
+      : (signup
+        ? 'Créez un compte. Il devra être validé par un administrateur avant d’accéder au back-office.'
+        : 'Connectez-vous pour accéder au back-office et gérer le site de la SPAA.');
+
+    email.closest('.auth-field')?.classList.toggle('hidden', change);
+    passwordConfirmField?.classList.toggle('hidden', !change);
+    password.autocomplete = change ? 'new-password' : (signup ? 'new-password' : 'current-password');
+    if (passwordConfirm) passwordConfirm.autocomplete = 'new-password';
+
+    submit.textContent = change ? 'Modifier mon mot de passe' : (signup ? 'Créer mon compte' : 'Se connecter');
+    toggle.classList.toggle('hidden', change);
+    helper.textContent = change
+      ? 'Le changement se fait directement sur le site. Aucun e-mail de réinitialisation n’est nécessaire.'
+      : (signup
+        ? 'Utilisez une adresse fictive uniquement si votre configuration de classe le prévoit.'
+        : 'Accès réservé aux membres autorisés de l’équipe.');
     back.textContent = 'Retour au site';
+    back.href = 'index.html';
     if (clearNotice) setNotice();
   }
 
   function getClient() {
-    if (!window.supabaseClient?.auth) {
+    if (!window.supabaseClient || !window.supabaseClient.auth) {
       throw new Error('Supabase n’est pas chargé. Vérifiez votre connexion internet puis rechargez la page.');
     }
     return window.supabaseClient;
   }
 
-  async function getTeamMember(userId) {
-    const client = getClient();
+  async function getTeamMember(client, userId) {
     const { data, error } = await client
       .from('team_members')
-      .select('role,must_change_password,active')
+      .select('role,active,must_change_password')
       .eq('user_id', userId)
       .maybeSingle();
     if (error) throw error;
-    return data || null;
+    return data;
   }
 
-  async function afterAuthenticated(session) {
-    if (!session?.user) return;
-    try {
-      const member = await getTeamMember(session.user.id);
-      if (!member) {
-        // Compatibilité avec les comptes historiques créés avant la mise en place de team_members.
-        window.location.replace('admin.html');
-        return;
-      }
-      if (member.active === false || member.role === 'pending') {
-        setNotice('Votre compte est en attente de validation par un administrateur. Vous ne pouvez pas encore accéder au back-office.', true);
-        return;
-      }
-      if (member.must_change_password) {
-        form.classList.add('hidden');
-        toggle.classList.add('hidden');
-        passwordPanel.classList.remove('hidden');
-        title.textContent = 'Première connexion';
-        subtitle.textContent = '';
-        helper.textContent = '';
-        back.textContent = 'Retour au site';
-        setNotice('Pour votre sécurité, vous devez choisir un nouveau mot de passe avant de continuer.');
-        return;
-      }
-      window.location.replace('admin.html');
-    } catch (error) {
-      console.error('[SPAA Team]', error);
-      setNotice(error?.message || 'Impossible de vérifier les droits de ce compte.', true);
+  async function finishLogin(client, session) {
+    const member = await getTeamMember(client, session.user.id);
+
+    if (member?.must_change_password === true) {
+      mustChangePassword = true;
+      form.dataset.modeBeforeChange = mode;
+      mode = 'change-password';
+      renderMode(false);
+      password.value = '';
+      if (passwordConfirm) passwordConfirm.value = '';
+      setNotice('Première connexion : définissez maintenant votre nouveau mot de passe.');
+      password.focus();
+      return;
     }
+
+    if (!member || member.active !== true || member.role === 'pending') {
+      await client.auth.signOut();
+      throw new Error('Votre compte est en attente de validation par un administrateur.');
+    }
+
+    window.location.replace('admin.html');
   }
 
-  if (toggle) toggle.addEventListener('click', () => {
-    mode = mode === 'login' ? 'signup' : 'login';
-    renderMode();
-  });
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      mode = mode === 'login' ? 'signup' : 'login';
+      renderMode();
+    });
+  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     setNotice();
-
-    const client = getClient();
-    const credentials = {
-      email: email.value.trim(),
-      password: password.value
-    };
-
     submit.disabled = true;
-    submit.textContent = mode === 'signup' ? 'Création…' : 'Connexion…';
 
     try {
-      if (!credentials.email || !credentials.password) {
-        throw new Error('Veuillez renseigner votre e-mail et votre mot de passe.');
-      }
-      if (credentials.password.length < 6) {
-        throw new Error('Le mot de passe doit contenir au moins 6 caractères.');
+      const client = getClient();
+      const emailValue = email.value.trim();
+      const passwordValue = password.value;
+
+      if (mode === 'change-password') {
+        if (passwordValue.length < 8) throw new Error('Le nouveau mot de passe doit contenir au moins 8 caractères.');
+        if (passwordValue !== passwordConfirm.value) throw new Error('Les deux mots de passe ne correspondent pas.');
+
+        submit.textContent = 'Modification…';
+        const { error: updateError } = await client.auth.updateUser({ password: passwordValue });
+        if (updateError) throw updateError;
+
+        const { data: sessionData, error: sessionError } = await client.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (!sessionData?.session) throw new Error('La session a expiré. Reconnectez-vous.');
+
+        const { error: memberError } = await client
+          .from('team_members')
+          .update({ must_change_password: false })
+          .eq('user_id', sessionData.session.user.id);
+        if (memberError) throw memberError;
+
+        mustChangePassword = false;
+        setNotice('Mot de passe modifié avec succès. Redirection vers l’espace équipe…');
+        setTimeout(() => window.location.replace('admin.html'), 700);
+        return;
       }
 
+      if (!emailValue || !passwordValue) throw new Error('Veuillez renseigner votre e-mail et votre mot de passe.');
+      if (passwordValue.length < 6) throw new Error('Le mot de passe doit contenir au moins 6 caractères.');
+
+      submit.textContent = mode === 'signup' ? 'Création…' : 'Connexion…';
+
       if (mode === 'signup') {
-        const { data, error } = await client.auth.signUp({
-          ...credentials,
-          options: { emailRedirectTo: `${window.location.origin}/connexion.html` }
-        });
+        const { data, error } = await client.auth.signUp({ email: emailValue, password: passwordValue });
         if (error) throw error;
 
         if (data?.session) {
-          await afterAuthenticated(data.session);
+          await finishLogin(client, data.session);
           return;
         }
 
         mode = 'login';
         renderMode(false);
-        setNotice('Compte créé. Vérifiez votre boîte e-mail si une confirmation est demandée. Votre compte devra ensuite être validé par l’équipe.');
+        setNotice('Compte créé. Il doit être validé par un administrateur avant l’accès à l’espace équipe.');
       } else {
-        const { data, error } = await client.auth.signInWithPassword(credentials);
+        const { data, error } = await client.auth.signInWithPassword({ email: emailValue, password: passwordValue });
         if (error) throw error;
-        if (!data?.session) {
-          throw new Error('Connexion effectuée mais aucune session n’a été créée.');
-        }
-        await afterAuthenticated(data.session);
+        if (!data?.session) throw new Error('Connexion effectuée mais aucune session n’a été créée.');
+        await finishLogin(client, data.session);
+        return;
       }
     } catch (error) {
       console.error('[SPAA Auth]', error);
       setNotice(error?.message || 'Une erreur est survenue pendant l’authentification.', true);
     } finally {
       submit.disabled = false;
-      if (document.body.contains(submit)) {
+      if (document.body.contains(submit) && mode !== 'change-password') {
         submit.textContent = mode === 'signup' ? 'Créer mon compte' : 'Se connecter';
       }
-    }
-  });
-
-  passwordChangeForm?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    setNotice();
-
-    const p1 = newPassword.value;
-    const p2 = confirmPassword.value;
-    if (p1.length < 8) {
-      setNotice('Le nouveau mot de passe doit contenir au moins 8 caractères.', true);
-      return;
-    }
-    if (p1 !== p2) {
-      setNotice('Les deux mots de passe ne correspondent pas.', true);
-      return;
-    }
-
-    passwordChangeSubmit.disabled = true;
-    passwordChangeSubmit.textContent = 'Modification…';
-    try {
-      const client = getClient();
-      const { data: updated, error: updateError } = await client.auth.updateUser({ password: p1 });
-      if (updateError) throw updateError;
-
-      const userId = updated?.user?.id || (await client.auth.getUser()).data?.user?.id;
-      if (!userId) throw new Error('Impossible d’identifier votre compte.');
-
-      const { error: flagError } = await client
-        .from('team_members')
-        .update({ must_change_password: false })
-        .eq('user_id', userId);
-      if (flagError) throw flagError;
-
-      setNotice('Mot de passe modifié avec succès. Redirection…');
-      setTimeout(() => window.location.replace('admin.html'), 700);
-    } catch (error) {
-      console.error('[SPAA Password]', error);
-      setNotice(error?.message || 'Impossible de modifier le mot de passe.', true);
-    } finally {
-      passwordChangeSubmit.disabled = false;
-      passwordChangeSubmit.textContent = 'Modifier mon mot de passe';
     }
   });
 
   async function init() {
     renderMode();
     if (!window.supabaseClient) {
-      setNotice('Le module Supabase n’est pas chargé. Vérifiez que JS/supabase.js est bien publié sur Vercel.', true);
+      setNotice('Le module Supabase n’est pas chargé.', true);
       return;
     }
-
     try {
       const client = getClient();
       const { data, error } = await client.auth.getSession();
       if (error) throw error;
-      if (data?.session) await afterAuthenticated(data.session);
+      if (data?.session) await finishLogin(client, data.session);
     } catch (error) {
       console.error('[SPAA Auth init]', error);
       setNotice(error?.message || 'Impossible de contacter Supabase.', true);

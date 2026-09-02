@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPAA — Actualités</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="CSS/styles.css">
+<style>
+.news-page{padding:70px 0 90px}.news-list{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}.news-card-link{display:block;color:inherit}.news-card-link:hover h2{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}.news-image{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--radius-md);background:var(--sand);display:block;margin-bottom:16px}.news-placeholder{width:100%;aspect-ratio:16/10;border-radius:var(--radius-md);background:var(--sand);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);margin-bottom:16px}.news-content h2{font-family:Fraunces,serif;font-size:1.45rem;margin-bottom:7px}.news-excerpt{color:var(--ink-soft);line-height:1.6}.news-loading{grid-column:1/-1;text-align:center;padding:45px;color:var(--ink-soft)}.news-error{color:#9a3d2f}
+@media(max-width:900px){.news-list{grid-template-columns:1fr 1fr}}@media(max-width:680px){.news-list{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+<header class="site-header" id="haut">
+  <div class="wrap header-inner">
+    <a class="logo" href="index.html" aria-label="SPAA, accueil">
+      <svg class="logo-mark" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <circle cx="17" cy="20" r="9" fill="#E1723B"/>
+        <circle cx="7" cy="10" r="4.2" fill="#2F5C52"/>
+        <circle cx="27" cy="10" r="4.2" fill="#2F5C52"/>
+        <circle cx="10.5" cy="3.5" r="3.1" fill="#E1723B"/>
+        <circle cx="23.5" cy="3.5" r="3.1" fill="#E1723B"/>
+      </svg>
+      <span class="logo-word">SPAA</span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+
+    <nav class="primary-nav" id="primaryNav">
+      <ul>
+        <li><a href="index.html#haut">Accueil</a></li>
+        <li><a href="index.html#mission">Présentation</a></li>
+        <li><a href="index.html#animaux">Animaux</a></li>
+        <li><a href="actualites.html" class="active" aria-current="page">Actualités</a></li>
+        <li><a href="agenda.html">Agenda</a></li>
+        <li><a href="index.html#faq">FAQ</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="btn btn-primary btn-nav" href="index.html#animaux">Adopter</a>
+        <a class="admin-link" href="connexion.html">Espace équipe</a>
+      </div>
+    </nav>
+  </div>
+</header>
+<main id="contenu">
+  <section class="news-page"><div class="wrap"><div class="section-head"><div><p class="hero-eyebrow">La vie du refuge</p><h1>Actualités</h1><p class="section-intro">Retrouvez les dernières nouvelles du refuge, les arrivées, les soins, les adoptions et les événements.</p></div></div><div id="newsList" class="news-list"><div class="news-loading">Chargement des actualités…</div></div></div></section>
+</main>
+<footer class="site-footer"><div class="wrap footer-inner"><div class="footer-brand"><div class="footer-logo logo-word">SPAA</div><p>Un refuge, des histoires, des familles.</p></div><nav class="footer-nav"><a href="index.html">Accueil</a><a href="index.html#animaux">Animaux</a><a href="actualites.html">Actualités</a><a href="index.html#contact">Contact</a></nav><div class="footer-contact"><p>contact@spaa.fr</p><p>Refuge SPAA</p></div></div><div class="footer-bottom"><p>© 2026 SPAA — Site vitrine.</p></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')}</script>
+<script src="JS/supabase.js"></script>
+<script src="JS/script.js"></script>
+<script src="JS/actualites.js"></script>
+
+  <div class="legal-footer-link" style="text-align:center;padding:18px 20px;font-size:.9rem"><a href="mentions-legales.html">Mentions légales</a></div>
+</body>
+</html>

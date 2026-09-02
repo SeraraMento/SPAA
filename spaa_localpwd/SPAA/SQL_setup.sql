@@ -229,7 +229,9 @@ create policy "Authenticated can manage FAQ" on public.faq_items for all to auth
 
 
 -- ============================================================
--- SPAA — Comptes équipe / première connexion
+-- SPAA — Comptes équipe et première connexion
+-- Pour un projet scolaire sans e-mails réels : désactiver
+-- "Confirm email" dans Supabase > Authentication > Providers > Email.
 -- ============================================================
 create table if not exists public.team_members (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -240,29 +242,15 @@ create table if not exists public.team_members (
   updated_at timestamptz not null default now()
 );
 
-create index if not exists team_members_role_idx on public.team_members(role);
-create index if not exists team_members_active_idx on public.team_members(active);
-
 alter table public.team_members enable row level security;
 
-drop policy if exists "Team members can read own profile" on public.team_members;
-create policy "Team members can read own profile"
-on public.team_members for select to authenticated
-using (user_id = auth.uid());
-
-drop policy if exists "Team members can change own password flag" on public.team_members;
-create policy "Team members can change own password flag"
-on public.team_members for update to authenticated
-using (user_id = auth.uid())
-with check (user_id = auth.uid());
-
-create or replace function public.handle_new_auth_user()
+create or replace function public.handle_new_team_member()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.team_members (user_id, role, active, must_change_password)
+  insert into public.team_members(user_id, role, active, must_change_password)
   values (new.id, 'pending', false, true)
   on conflict (user_id) do nothing;
   return new;
@@ -272,22 +260,30 @@ $$;
 drop trigger if exists on_auth_user_created_team_member on auth.users;
 create trigger on_auth_user_created_team_member
 after insert on auth.users
-for each row execute function public.handle_new_auth_user();
+for each row execute function public.handle_new_team_member();
 
--- Crée le profil pour les comptes déjà présents avant l'installation de ce système.
-insert into public.team_members (user_id, role, active, must_change_password)
-select id, 'pending', false, true
-from auth.users
-on conflict (user_id) do nothing;
+-- Un administrateur peut lire/modifier les comptes équipe.
+drop policy if exists "Members can read own team profile" on public.team_members;
+create policy "Members can read own team profile"
+on public.team_members for select to authenticated
+using (user_id = auth.uid());
 
-create or replace function public.current_user_role()
-returns text
+drop policy if exists "Members can clear own password flag" on public.team_members;
+create policy "Members can clear own password flag"
+on public.team_members for update to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+create or replace function public.current_team_member()
+returns table(role text, active boolean, must_change_password boolean)
 language sql
-stable
 security definer
 set search_path = public
 as $$
-  select coalesce((select role from public.team_members where user_id = auth.uid()), 'pending');
+  select tm.role, tm.active, tm.must_change_password
+  from public.team_members tm
+  where tm.user_id = auth.uid();
 $$;
 
-grant execute on function public.current_user_role() to authenticated;
+revoke all on function public.current_team_member() from public;
+grant execute on function public.current_team_member() to authenticated;
